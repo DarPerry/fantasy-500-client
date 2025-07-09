@@ -38,7 +38,7 @@ const Header = () => {
                     <div>
                         <div className={styles.leagueInfo}>
                             <div className={styles.leagueName}>
-                                The Indy (Never Above) .500
+                                The Fantasy 500
                             </div>
                         </div>
                         <div className={styles.champ}>
