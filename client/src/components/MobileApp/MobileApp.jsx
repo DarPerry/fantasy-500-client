@@ -9,11 +9,14 @@ import RulesPage from "../../pages/RulesPage/RulesPage";
 
 const MobileApp = () => {
     const [data, setData] = useState(null);
+    const isLocalhost = window.location.hostname === "localhost";
 
     useEffect(() => {
         const getData = async () => {
             const response = await fetch(
-                "https://indy-ff-site-server.onrender.com/"
+                isLocalhost
+                    ? "http://localhost:1739/"
+                    : "https://indy-ff-site-server.onrender.com/"
             );
             const data = await response.json();
             setData(data);

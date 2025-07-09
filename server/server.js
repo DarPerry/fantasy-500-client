@@ -17,7 +17,7 @@ import {
     getLeagueTransactions,
 } from "./services/league.service.js";
 
-const ROUNDS_IN_DRAFT = 18;
+const ROUNDS_IN_DRAFT = 16;
 const PORT = process.env.PORT || 1739;
 
 import {
