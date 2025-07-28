@@ -28,6 +28,8 @@ import { FANTASY_POSITIONS, LEAGUE_ID } from "./config/index.config.js";
 
 const app = express();
 
+import sleeperADPMap from "./data/sleeperAdp.js";
+
 app.use(cors());
 
 const HistoryEntry = ({
@@ -375,7 +377,7 @@ const getPlayerAdpMap = async (playerIdMap) => {
 const getAllPlayersTransactions = async () => {
     const { players, playerIdMap } = await getValidPlayers();
 
-    const playerAdpMap = await getPlayerAdpMap(playerIdMap);
+    const playerAdpMap = await getSleeperAdpMap();
 
     // return playerAdpMap;
 
@@ -536,6 +538,14 @@ app.get("/", async (req, res) => {
         )
     );
 });
+
+export const getSleeperAdpMap = async () => {
+    return sleeperADPMap.reduce((acc, { player_id, stats: { adp_2qb } }) => {
+        _.set(acc, player_id, adp_2qb);
+
+        return acc;
+    }, {});
+};
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
