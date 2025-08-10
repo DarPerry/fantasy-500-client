@@ -91,6 +91,36 @@ const rosteredByPickMap = {
     Diego: 12,
 };
 
+const pickOrderMap = {
+    Joel: 0,
+    Tri: 7,
+    Hues: 1,
+    Jack: 6,
+    Jeremiah: 12,
+    Bob: 3,
+    "T Cool": 4,
+    Darius: 11,
+    Quast: 8,
+    Zack: 2,
+    Nick: 9,
+    Diego: 5,
+};
+
+const getSnakeDraftPickNumberForPlayer = (player, round) => {
+    //Darius shoudl be 11, 14, 35, 38
+
+    const pickSlot = pickOrderMap[player];
+    const isOddRound = round % 2 === 1;
+
+    if (isOddRound) return (round - 1) * 12 + pickSlot;
+
+    //2 -- 2 , 23, 26, 47
+
+    return round * 12 - pickSlot + 1;
+
+    return "TBD";
+};
+
 const PlayerRow = ({
     keeperValueForCurrentTeam: keeperCost,
     name,
@@ -106,6 +136,15 @@ const PlayerRow = ({
         rosteredByPickMap[rosteredBy],
         keeperCost
     );
+
+    console.log(keeperCost, name);
+
+    const pickCostForPlayer = getSnakeDraftPickNumberForPlayer(
+        rosteredBy,
+        keeperCost
+    );
+
+    const pickValue = Math.round(pickCostForPlayer - adp);
 
     return (
         <div className={styles.playerRow}>
@@ -181,6 +220,15 @@ const PlayerRow = ({
                     {!adr || !keeperCost
                         ? " "
                         : `${keeperCost - adr} Round Value`}
+                </div>
+                <div
+                    className={classNames(
+                        styles.value,
+                        adp && keeperCost - adr > 0 && styles.green,
+                        adp && keeperCost - adr < 0 && styles.red
+                    )}
+                >
+                    {!adr || !keeperCost ? " " : `${pickValue} Pick Value`}
                 </div>
             </div>
         </div>
