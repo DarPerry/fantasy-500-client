@@ -78,12 +78,12 @@ const RulesPage = () => {
         <Page>
             <RuleCard title={"Entry Fee & Payouts"}>
                 <RulesList>
-                    <RulesListItem text={"Entry Cost"} bolded={"$50"} />
-                    <RulesListItem text={"Champion"} bolded={"$400"} />
-                    <RulesListItem text={"Runner-Up"} bolded={"$125"} />
+                    <RulesListItem text={"Entry Cost"} bolded={"$75"} />
+                    <RulesListItem text={"Champion"} bolded={"$500"} />
+                    <RulesListItem text={"Runner-Up"} bolded={"$200"} />
                     <RulesListItem
                         text={"Regular Season Point Leader"}
-                        bolded={"$75"}
+                        bolded={"$125"}
                     />
                 </RulesList>
             </RuleCard>

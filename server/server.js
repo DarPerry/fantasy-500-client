@@ -425,8 +425,8 @@ const getAllPlayersTransactions = async () => {
 };
 
 const getRostersByTeamId = async () => {
-    const currentLeagueID = await getCurrentLeagueId();
-    const rosters = await getLeagueRosters("1095616714546479104");
+    // const currentLeagueID = await getCurrentLeagueId();
+    const rosters = await getLeagueRosters("1225563453289148416");
     const allPlayerHistory = await getAllPlayersTransactions();
 
     const nameMap = {

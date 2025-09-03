@@ -40,7 +40,7 @@ const teamColors = {
 
 const getPlayerImage = (name) => {
     const path = `/images/${name
-        .toLowerCase()
+        ?.toLowerCase()
         ?.replaceAll(".", "")
         ?.replaceAll("'", "")
         ?.split(" ")
