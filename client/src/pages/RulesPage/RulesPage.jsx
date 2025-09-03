@@ -96,12 +96,8 @@ const RulesPage = () => {
                     <RulesListItem text={"Passing TD"} bolded={6} />
                     <RulesListItem text={"Pass Intercepted"} bolded={-2} />
                     <RulesListItem text={"2-PT Conversion"} bolded={2} />
-                    <RulesListItem text={"Pass Completed"} bolded={0.1} isNew />
-                    <RulesListItem
-                        text={"40+ Yard TD Bonus"}
-                        bolded={2}
-                        isNew
-                    />
+                    <RulesListItem text={"Pass Completed"} bolded={0.1} />
+                    <RulesListItem text={"40+ Yard TD Bonus"} bolded={2} />
                     {/* <RulesListItem text={"Pick 6 Thrown"} bolded={-2} isNew /> */}
                 </RulesList>
                 <RulesList header="Rushing" showDivider>
@@ -111,12 +107,8 @@ const RulesPage = () => {
                     />
                     <RulesListItem text={"Rushing TD"} bolded={6} />
                     <RulesListItem text={"2-PT Conversion"} bolded={2} />
-                    <RulesListItem text={"Rush Attempts"} bolded={0.15} isNew />
-                    <RulesListItem
-                        text={"40+ Yard TD Bonus"}
-                        bolded={2}
-                        isNew
-                    />
+                    <RulesListItem text={"Rush Attempts"} bolded={0.15} />
+                    <RulesListItem text={"40+ Yard TD Bonus"} bolded={2} />
                 </RulesList>
                 <RulesList header="Receiving" showDivider>
                     <RulesListItem
@@ -125,12 +117,8 @@ const RulesPage = () => {
                     />
                     <RulesListItem text={"Receiving TD"} bolded={6} />
                     <RulesListItem text={"2-PT Conversion"} bolded={2} />
-                    <RulesListItem text={"Reception"} bolded={1} isUpdated />
-                    <RulesListItem
-                        text={"40+ Yard TD Bonus"}
-                        bolded={2}
-                        isNew
-                    />
+                    <RulesListItem text={"Reception"} bolded={0.5} isUpdated />
+                    <RulesListItem text={"40+ Yard TD Bonus"} bolded={2} />
 
                     {/* <RulesListItem
                         text={"TE Reception Bonus"}
@@ -141,11 +129,7 @@ const RulesPage = () => {
                 <RulesList header="Kicking" showDivider>
                     <RulesListItem text={"PAT Made"} bolded={1} />
                     <RulesListItem text={"PAT Missed"} bolded={-3} />
-                    <RulesListItem
-                        text={"Points per FG yard"}
-                        bolded={0.1}
-                        isNew
-                    />
+                    <RulesListItem text={"Points per FG yard"} bolded={0.1} />
                     <RulesListItem text={"FG Missed"} bolded={-2} />
                 </RulesList>
                 <RulesList header="Team Defense" showDivider>
@@ -154,44 +138,29 @@ const RulesPage = () => {
                     <RulesListItem
                         text={"2-PT Conversion Returns"}
                         bolded={4}
-                        isNew
                     />
-                    <RulesListItem text={"Blocked Kick"} bolded={3} isUpdated />
+                    <RulesListItem text={"Blocked Kick"} bolded={3} />
                     <RulesListItem text={"Interceptions"} bolded={2} />
                     <RulesListItem text={"Fumble Recovery"} bolded={1} />
                     <RulesListItem text={"Forced Fumble"} bolded={1} />
                     <RulesListItem text={"Sack"} bolded={1} />
 
-                    <RulesListItem
-                        text={"Tackle For Loss"}
-                        bolded={0.5}
-                        isNew
-                    />
-                    <RulesListItem
-                        text={"Passed Defended"}
-                        bolded={0.25}
-                        isNew
-                    />
-                    <RulesListItem text={"3 and Out"} bolded={0.5} isNew />
-                    <RulesListItem text={"4th Down Stop"} bolded={1} isNew />
+                    <RulesListItem text={"Tackle For Loss"} bolded={0.5} />
+                    <RulesListItem text={"Passed Defended"} bolded={0.25} />
+                    <RulesListItem text={"3 and Out"} bolded={0.5} />
+                    <RulesListItem text={"4th Down Stop"} bolded={1} />
 
                     <RulesListItem
                         text={"Points Allowed"}
                         bolded={"-0.4 per Point"}
-                        isNew
                     />
                     <RulesListItem
                         text={"Yards Allowed"}
                         bolded={"-0.02 per Yard"}
-                        isNew
                     />
                 </RulesList>
                 <RulesList header="Special Teams" showDivider>
-                    <RulesListItem
-                        text={"Special Teams TD"}
-                        bolded={8}
-                        isUpdated
-                    />
+                    <RulesListItem text={"Special Teams TD"} bolded={8} />
                     <RulesListItem
                         text={"Special Teams Forced Fumble"}
                         bolded={1}

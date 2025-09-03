@@ -28,8 +28,6 @@ import { FANTASY_POSITIONS, LEAGUE_ID } from "./config/index.config.js";
 
 const app = express();
 
-import sleeperADPMap from "./data/sleeperAdp.js";
-
 app.use(cors());
 
 const HistoryEntry = ({
@@ -375,9 +373,11 @@ const getPlayerAdpMap = async (playerIdMap) => {
 };
 
 const getAllPlayersTransactions = async () => {
-    const { players, playerIdMap } = await getValidPlayers();
+    const { players } = await getValidPlayers();
 
     const playerAdpMap = await getSleeperAdpMap();
+
+    console.log(playerAdpMap[10236]);
 
     // return playerAdpMap;
 
@@ -540,7 +540,11 @@ app.get("/", async (req, res) => {
 });
 
 export const getSleeperAdpMap = async () => {
-    return sleeperADPMap.reduce((acc, { player_id, stats: { adp_2qb } }) => {
+    const { data: sleeperAdp } = await axios.get(
+        "https://api.sleeper.com/projections/nfl/2025?season_type=regular&position[]=DEF&position[]=K&position[]=QB&position[]=RB&position[]=TE&position[]=WR&order_by=adp_2qb"
+    );
+
+    return sleeperAdp.reduce((acc, { player_id, stats: { adp_2qb } }) => {
         _.set(acc, player_id, adp_2qb);
 
         return acc;
