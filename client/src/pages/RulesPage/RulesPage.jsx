@@ -81,6 +81,8 @@ const RulesPage = () => {
                     <RulesListItem text={"Entry Cost"} bolded={"$75"} />
                     <RulesListItem text={"Champion"} bolded={"$500"} />
                     <RulesListItem text={"Runner-Up"} bolded={"$200"} />
+                    <RulesListItem text={"3rd Place"} bolded={"$75"} />
+
                     <RulesListItem
                         text={"Regular Season Point Leader"}
                         bolded={"$125"}
