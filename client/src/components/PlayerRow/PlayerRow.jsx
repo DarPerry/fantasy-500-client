@@ -137,8 +137,6 @@ const PlayerRow = ({
         keeperCost
     );
 
-    console.log(keeperCost, name);
-
     const pickCostForPlayer = getSnakeDraftPickNumberForPlayer(
         rosteredBy,
         keeperCost

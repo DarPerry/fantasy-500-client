@@ -137,7 +137,10 @@ const getAllDrafts = async () => {
     );
 
     return _.flatten(allDrafts).filter(({ metadata: { name } }) => {
-        return !name.toUpperCase().includes("FANDUEL");
+        return (
+            !name.toUpperCase().includes("FANDUEL") ||
+            !name.toUpperCase().includes("ADYEN")
+        );
     });
 };
 
@@ -316,70 +319,10 @@ const getPlayerKeeperValue = (transactions, playerAdr, player) => {
 const getFibonacciNumberFromSequence = (sequence) =>
     [0, 1, 2, 3, 5, 8, 13, 21][sequence + 1] || "TBD";
 
-const getPlayerAdpMap = async (playerIdMap) => {
-    const { data } = await axios.get(
-        "https://www.fantasypros.com/nfl/rankings/superflex-cheatsheets.php",
-        { responseType: "document" }
-    );
-
-    let ecrDataScriptContent = "";
-    const $ = cheerio.load(data);
-
-    $("script").each((i, script) => {
-        const scriptContent = $(script).html();
-
-        if (scriptContent && scriptContent.includes("var ecrData")) {
-            ecrDataScriptContent = scriptContent;
-        }
-    });
-
-    const ecrDataMatch = ecrDataScriptContent.match(
-        /var ecrData\s*=\s*(\{.*?\});/s
-    );
-    if (!ecrDataMatch || ecrDataMatch.length < 2) {
-        throw new Error("Failed to extract ecrData JSON.");
-    }
-
-    const ecrDataJson = ecrDataMatch[1];
-    const { players } = JSON.parse(ecrDataJson);
-
-    return players.reduce((acc, { player_name, rank_ecr }) => {
-        const normalizedPlayerName = normalizePlayerName(player_name);
-        const playerId = playerIdMap[normalizedPlayerName];
-
-        acc[playerId] = rank_ecr;
-
-        return acc;
-    }, {});
-
-    // const { data } = await axios.get(
-    //     "https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php"
-    // );
-
-    // const playerAdpMap = {};
-
-    // const $ = cheerio.load(data);
-    // $("tbody tr").each((i, el) => {
-    //     const $el = $(el);
-    //     const name = $el.find(".player-name").text();
-    //     const adp = Number($el.find("td").eq(-1).text());
-
-    //     const playerId = playerIdMap[normalizePlayerName(name)];
-
-    //     playerAdpMap[playerId] = adp;
-    // });
-
-    // return playerAdpMap;
-};
-
 const getAllPlayersTransactions = async () => {
     const { players } = await getValidPlayers();
 
     const playerAdpMap = await getSleeperAdpMap();
-
-    console.log(playerAdpMap[10236]);
-
-    // return playerAdpMap;
 
     const draftPicksByPlayerId = await getDraftPicksByPlayerId();
     const transactionsByPlayerId = await getTransactionByPlayerIDs();
@@ -397,6 +340,10 @@ const getAllPlayersTransactions = async () => {
             playerDraftPicks,
             playerTransactions
         );
+
+        if (player.last_name === "Hunter") {
+            console.log(player.first_name, transactions);
+        }
 
         // console.log(44444, full_name, transactions);
 

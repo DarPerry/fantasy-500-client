@@ -25,8 +25,6 @@ const MobileApp = () => {
         getData();
     }, []);
 
-    console.log(1, data);
-
     return (
         <div className={styles.mobileApp}>
             <Header />

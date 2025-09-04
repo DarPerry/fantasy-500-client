@@ -11,7 +11,6 @@ const pageLabelMap = {
 
 const Header = () => {
     const [activePage, setActivePage] = useState("keeperPrices");
-    console.log(activePage);
 
     const PageNavOption = ({ pageKey }) => {
         const active = activePage === pageKey;

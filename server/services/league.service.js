@@ -43,11 +43,13 @@ const getNflState = () => fetchFromSleeperEndpoint(`/state/nfl`);
 export const getAllLeagueSeasons = async () => {
     const yearsLeagueHasExisted = dayjs().diff(
         dayjs(`${YEAR_STARTED}-01-01`),
-        "year"
+        "month"
     );
 
+    const yearsActive = Math.ceil(yearsLeagueHasExisted / 12);
+
     const responses = await Promise.all(
-        Array.from({ length: yearsLeagueHasExisted }).map(async (_, i) => {
+        Array.from({ length: yearsActive }).map(async (_, i) => {
             const year = YEAR_STARTED + i;
             const leagues = await getAllLeaguesForUser(MY_USER_ID, year);
             return leagues;
@@ -55,7 +57,9 @@ export const getAllLeagueSeasons = async () => {
     );
 
     const leaguesSinceInception = _.flatten(responses).filter(
-        ({ name }) => !name.toUpperCase().includes("FANDUEL")
+        ({ name }) =>
+            !name.toUpperCase().includes("FANDUEL") ||
+            !name.toUpperCase().includes("ADYEN")
     );
 
     return leaguesSinceInception;
