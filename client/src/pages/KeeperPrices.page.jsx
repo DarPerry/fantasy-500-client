@@ -77,8 +77,6 @@ const KeeperPricesPage = ({ data }) => {
         value: valueFilter,
     });
 
-    console.log(data);
-
     const hcThreshold = 20;
 
     const filtered = _.flattenDeep(Object.values(data || {})).filter(
@@ -260,7 +258,6 @@ const KeeperPricesPage = ({ data }) => {
                 </div>
                 <body className={styles.body}>
                     {players.map((player) => {
-                        console.log(player);
                         return (
                             <PlayerRow
                                 {...player}

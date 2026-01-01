@@ -2,6 +2,7 @@ import classNames from "classnames";
 import PositionBadge from "../PositionBadge/PositionBadge";
 import styles from "./PlayerRow.module.scss";
 import { getSnakeDraftPick } from "../../helpers/draft.helper";
+import { USE_PRESEASON_MODE } from "../../constants";
 
 const teamColors = {
     CLE: "#fb4f14",
@@ -181,17 +182,20 @@ const PlayerRow = ({
                         <div className={classNames(styles.playerPosition)}>
                             {team || "FA"}
                         </div>
-                        <div className={classNames(styles.playerPosition)}>
-                            ADP {adp || "UDFA"} ({adr}
-                            {getNumberSuffix(adr)})
-                        </div>
+                        {!USE_PRESEASON_MODE && (
+                            <div className={classNames(styles.playerPosition)}>
+                                ADP {adp || "UDFA"} ({adr}
+                                {getNumberSuffix(adr)})
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
             <div className={styles.right}>
                 <div className={styles.keeperCost}>
-                    <HotColdIcon type={hotColdPlayers[id]} />
-
+                    {!USE_PRESEASON_MODE && (
+                        <HotColdIcon type={hotColdPlayers[id]} />
+                    )}
                     <div className={styles.inside}>
                         <div className={styles.keeperValue}>
                             {keeperCost ? (
@@ -210,7 +214,9 @@ const PlayerRow = ({
                         </div>
                     </div>
                 </div>
-                {SHOW_KEEPEER_VALUE ? (
+                {USE_PRESEASON_MODE ? (
+                    <div className={classNames(styles.value)}>Keeper Cost</div>
+                ) : (
                     <>
                         <div
                             className={classNames(
@@ -235,8 +241,6 @@ const PlayerRow = ({
                                 : `${pickValue} Pick Value`}
                         </div>
                     </>
-                ) : (
-                    <div className={classNames(styles.value)}>Keeper Cost</div>
                 )}
             </div>
         </div>
