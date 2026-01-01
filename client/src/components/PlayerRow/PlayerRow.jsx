@@ -144,6 +144,8 @@ const PlayerRow = ({
 
     const pickValue = Math.round(pickCostForPlayer - adp);
 
+    const SHOW_KEEPEER_VALUE = false;
+
     return (
         <div className={styles.playerRow}>
             <div className={styles.left2}>
@@ -208,26 +210,34 @@ const PlayerRow = ({
                         </div>
                     </div>
                 </div>
-                <div
-                    className={classNames(
-                        styles.value,
-                        adp && keeperCost - adr > 0 && styles.green,
-                        adp && keeperCost - adr < 0 && styles.red
-                    )}
-                >
-                    {!adr || !keeperCost
-                        ? " "
-                        : `${keeperCost - adr} Round Value`}
-                </div>
-                <div
-                    className={classNames(
-                        styles.value,
-                        adp && keeperCost - adr > 0 && styles.green,
-                        adp && keeperCost - adr < 0 && styles.red
-                    )}
-                >
-                    {!adr || !keeperCost ? " " : `${pickValue} Pick Value`}
-                </div>
+                {SHOW_KEEPEER_VALUE ? (
+                    <>
+                        <div
+                            className={classNames(
+                                styles.value,
+                                adp && keeperCost - adr > 0 && styles.green,
+                                adp && keeperCost - adr < 0 && styles.red
+                            )}
+                        >
+                            {!adr || !keeperCost
+                                ? " "
+                                : `${keeperCost - adr} Round Value`}
+                        </div>
+                        <div
+                            className={classNames(
+                                styles.value,
+                                adp && keeperCost - adr > 0 && styles.green,
+                                adp && keeperCost - adr < 0 && styles.red
+                            )}
+                        >
+                            {!adr || !keeperCost
+                                ? " "
+                                : `${pickValue} Pick Value`}
+                        </div>
+                    </>
+                ) : (
+                    <div className={classNames(styles.value)}>Keeper Cost</div>
+                )}
             </div>
         </div>
     );

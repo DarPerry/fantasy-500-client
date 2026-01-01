@@ -107,10 +107,10 @@ const getValidPlayers = async () => {
 
         const isActive =
             additionalIdsToInclude.includes(player.search_full_name) ||
-            status === "Active" ||
+            ["Active", "Injured Reserve"].includes(status) ||
             (position === "DEF" && active);
 
-        if (isActive && FANTASY_POSITIONS.includes(position)) {
+        if (FANTASY_POSITIONS.includes(position)) {
             playerIdMap[
                 normalizePlayerName(player.full_name) ||
                     `${teamNameMap[player.team]
@@ -138,7 +138,7 @@ const getAllDrafts = async () => {
 
     return _.flatten(allDrafts).filter(({ metadata: { name } }) => {
         return (
-            !name.toUpperCase().includes("FANDUEL") ||
+            !name.toUpperCase().includes("FANDUEL") &&
             !name.toUpperCase().includes("ADYEN")
         );
     });
@@ -201,7 +201,7 @@ const getTransactionByPlayerIDs = async () => {
 
     return _.flatten(transactions)
         .filter(({ status }) => status === "complete")
-        .reduce((acc, { leg, adds, drops, type, season }) => {
+        .reduce((acc, { leg, adds, drops, type, season, metadata }) => {
             Object.entries(adds || {}).forEach(([playerId, rosterId]) => {
                 if (!acc[playerId]) {
                     acc[playerId] = [];
@@ -340,10 +340,6 @@ const getAllPlayersTransactions = async () => {
             playerDraftPicks,
             playerTransactions
         );
-
-        if (player.last_name === "Hunter") {
-            console.log(player.first_name, transactions);
-        }
 
         // console.log(44444, full_name, transactions);
 

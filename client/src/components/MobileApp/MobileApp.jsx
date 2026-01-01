@@ -27,6 +27,17 @@ const MobileApp = () => {
 
     return (
         <div className={styles.mobileApp}>
+            {/* <div
+                style={{
+                    background: "red",
+                    width: "100%",
+                    backgroundImage:
+                        "url('https://heavy.com/wp-content/uploads/2025/11/caleb-williams-chicago-bears_ae84c4.jpg?quality=65&strip=all&w=780')",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    height: "200px",
+                }}
+            ></div> */}
             <Header />
             <Routes>
                 <Route path="/" element={<KeeperPricesPage data={data} />} />

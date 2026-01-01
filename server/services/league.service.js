@@ -52,13 +52,14 @@ export const getAllLeagueSeasons = async () => {
         Array.from({ length: yearsActive }).map(async (_, i) => {
             const year = YEAR_STARTED + i;
             const leagues = await getAllLeaguesForUser(MY_USER_ID, year);
+
             return leagues;
         })
     );
 
     const leaguesSinceInception = _.flatten(responses).filter(
         ({ name }) =>
-            !name.toUpperCase().includes("FANDUEL") ||
+            !name.toUpperCase().includes("FANDUEL") &&
             !name.toUpperCase().includes("ADYEN")
     );
 
