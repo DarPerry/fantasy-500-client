@@ -3,6 +3,7 @@ import classNames from "classnames";
 import styles from "./Header.module.scss";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { REIGNING_CHAMPION } from "../../constants";
 
 const pageLabelMap = {
     keeperPrices: "Keeper Prices",
@@ -48,7 +49,9 @@ const Header = () => {
                                 )}
                             />
                             <span>Reigning Champion:</span>
-                            <span className={styles.champName}>Jeremiah</span>
+                            <span className={styles.champName}>
+                                {REIGNING_CHAMPION}
+                            </span>
                         </div>
                     </div>
                 </div>

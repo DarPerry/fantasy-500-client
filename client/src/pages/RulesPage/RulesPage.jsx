@@ -3,6 +3,7 @@ import classNames from "classnames";
 import Page from "../../components/Page/Page";
 import styles from "../RulesPage.module.scss";
 import { useState } from "react";
+import { ENTRY_COST } from "../../constants";
 
 // const styles = {};
 
@@ -78,13 +79,25 @@ const RulesPage = () => {
         <Page>
             <RuleCard title={"Entry Fee & Payouts"}>
                 <RulesList>
-                    <RulesListItem text={"Entry Cost"} bolded={"$75"} />
-                    <RulesListItem text={"Champion"} bolded={"$500"} />
-                    <RulesListItem text={"Runner-Up"} bolded={"$200"} />
-                    <RulesListItem text={"3rd Place"} bolded={"$75"} />
+                    <RulesListItem
+                        text={"Entry Cost"}
+                        bolded={`$${ENTRY_COST}`}
+                    />
+                    <RulesListItem
+                        text={"Champion"}
+                        bolded={`$${ENTRY_COST * (20 / 3)}`}
+                    />
+                    <RulesListItem
+                        text={"Runner-Up"}
+                        bolded={`$${ENTRY_COST * (8 / 3)}`}
+                    />
+                    <RulesListItem
+                        text={"3rd Place"}
+                        bolded={`$${ENTRY_COST}`}
+                    />
 
                     <RulesListItem
-                        text={"Regular Season Point Leader"}
+                        text={" Highest Weekly Score  (Regular Season)"}
                         bolded={"$125"}
                     />
                 </RulesList>
