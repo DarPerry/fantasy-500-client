@@ -232,6 +232,14 @@ const RulesPage = () => {
                         text={"Player 4th time kept"}
                         bolded={"Prev. keeper cost - 5"}
                     />
+                    <RulesListItem
+                        text={"Player drafted in rounds 1 or 2"}
+                        bolded={"Not eligible"}
+                    />
+                    <RulesListItem
+                        text={"Kept player traded to a new team"}
+                        bolded={"Keeper count resets"}
+                    />
                 </RulesList>
                 <RulesList header="Draft Lottery">
                     <RulesListItem

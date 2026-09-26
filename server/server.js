@@ -18,6 +18,8 @@ import {
 } from "./services/league.service.js";
 
 const ROUNDS_IN_DRAFT = 16;
+// Players drafted before this round can't be kept
+const FIRST_KEEPABLE_ROUND = 3;
 const PORT = process.env.PORT || 1739;
 
 import {
@@ -40,6 +42,7 @@ const HistoryEntry = ({
     pick,
     overall,
     keeper,
+    timestamp,
 }) => {
     const draftMetadata =
         round || pick || overall || keeper
@@ -56,6 +59,7 @@ const HistoryEntry = ({
         season: Number(season),
         week,
         type,
+        timestamp,
         draftMetadata,
     };
 };
@@ -150,7 +154,7 @@ const getDraftPicksByPlayerId = async () => {
     const allDraftPicks = [];
 
     await Promise.all(
-        allDrafts.map(async ({ season, draft_id }) => {
+        allDrafts.map(async ({ season, draft_id, start_time, last_picked }) => {
             const draftPicks = await getDraftPicks(draft_id);
 
             const picksWithSeason = draftPicks.map((pick) => {
@@ -167,6 +171,7 @@ const getDraftPicksByPlayerId = async () => {
                     player_id,
                     season: Number(season),
                     week: 0,
+                    timestamp: last_picked || start_time,
                     type: `DRAFT_${is_keeper ? "KEEPER" : "PICK"}`,
                     round,
                     pick: draft_slot,
@@ -201,7 +206,7 @@ const getTransactionByPlayerIDs = async () => {
 
     return _.flatten(transactions)
         .filter(({ status }) => status === "complete")
-        .reduce((acc, { leg, adds, drops, type, season, metadata }) => {
+        .reduce((acc, { leg, adds, drops, type, season, status_updated }) => {
             Object.entries(adds || {}).forEach(([playerId, rosterId]) => {
                 if (!acc[playerId]) {
                     acc[playerId] = [];
@@ -218,6 +223,7 @@ const getTransactionByPlayerIDs = async () => {
                         rosterId,
                         season,
                         week: leg,
+                        timestamp: status_updated,
                         type: isWaiverMove
                             ? "WAIVER_ADD"
                             : type === "trade"
@@ -242,6 +248,7 @@ const getTransactionByPlayerIDs = async () => {
                         rosterId,
                         season,
                         week: leg,
+                        timestamp: status_updated,
                         type: isWaiverMove
                             ? "WAIVER_DROP"
                             : type === "trade"
@@ -258,12 +265,12 @@ const getTransactionByPlayerIDs = async () => {
 const mergePlayerTransactions = (draftPicks = [], transactions = []) => {
     return _.orderBy(
         [...draftPicks, ...transactions],
-        ["season", "week", "type"],
-        ["desc", "desc", "asc"],
+        ["season", "timestamp"],
+        ["desc", "desc"],
     );
 };
 
-const getPlayerKeeperValue = (transactions, playerAdr, player) => {
+const getPlayerKeeperValue = (transactions, playerAdr, keeperSeason) => {
     const nonTradedTransactions = transactions.filter(
         ({ type }) => !type.includes("TRADE"),
     );
@@ -276,31 +283,27 @@ const getPlayerKeeperValue = (transactions, playerAdr, player) => {
         season: lastTransactionSeason,
         type: lastTransactionSeasonType,
         round: lastRoundDrafted,
-        draftedBy: lastTeamDraftedBy,
     } = lastTransaction;
 
     let keeperValue = 0;
 
-    // console.log(Number(lastTransactionSeason), dayjs().year() - 1);
-
     if (
-        Number(lastTransactionSeason) !== dayjs().year() - 1 ||
-        lastTransactionSeasonType === "WAIVER_DROP"
+        Number(lastTransactionSeason) !== keeperSeason ||
+        lastTransactionSeasonType === "WAIVER_DROP" ||
+        (lastTransactionSeasonType.startsWith("DRAFT") &&
+            lastRoundDrafted < FIRST_KEEPABLE_ROUND)
     ) {
         return 0;
     } else if (lastTransactionSeasonType === "DRAFT_PICK") {
         keeperValue = lastRoundDrafted - 1;
     } else if (lastTransactionSeasonType === "DRAFT_KEEPER") {
-        const consecutiveTimesKeptByOwner = nonTradedTransactions.findIndex(
-            ({ type, draftedBy }) =>
-                type !== "DRAFT_KEEPER" || draftedBy !== lastTeamDraftedBy,
+        // Trades are included here so a trade resets the keeper streak
+        const streakEnd = transactions.findIndex(
+            ({ type }) => type !== "DRAFT_KEEPER",
         );
+        const timesKept = streakEnd === -1 ? transactions.length : streakEnd;
 
-        const keeperAdjustment = getFibonacciNumberFromSequence(
-            consecutiveTimesKeptByOwner,
-        );
-
-        keeperValue = lastRoundDrafted - keeperAdjustment;
+        keeperValue = lastRoundDrafted - getKeeperAdjustment(timesKept);
     } else {
         keeperValue = !playerAdr ? ROUNDS_IN_DRAFT : playerAdr + 1;
     }
@@ -316,13 +319,26 @@ const getPlayerKeeperValue = (transactions, playerAdr, player) => {
     return keeperValue;
 };
 
-const getFibonacciNumberFromSequence = (sequence) =>
-    [0, 1, 2, 3, 5, 8, 13, 21][sequence + 1] || "TBD";
+// Rounds added for the next keep: 1, 2, 3, 5, 8, ... (Fibonacci)
+const getKeeperAdjustment = (timesKept) => {
+    let [prev, curr] = [1, 1];
+
+    for (let i = 0; i < timesKept; i++) {
+        [prev, curr] = [curr, prev + curr];
+    }
+
+    return curr;
+};
 
 const getAllPlayersTransactions = async () => {
     const { players } = await getValidPlayers();
 
     const playerAdpMap = await getSleeperAdpMap();
+
+    // Keeper costs are based on the latest season that has drafted
+    const keeperSeason = _.max(
+        (await getAllLeagueSeasons()).map(({ season }) => Number(season)),
+    );
 
     const draftPicksByPlayerId = await getDraftPicksByPlayerId();
     const transactionsByPlayerId = await getTransactionByPlayerIDs();
@@ -346,12 +362,16 @@ const getAllPlayersTransactions = async () => {
         const keeperValueForCurrentTeam = getPlayerKeeperValue(
             transactions,
             adr,
-            player,
+            keeperSeason,
         );
 
-        if (player.last_name === "Dart") {
-            console.log(transactions, adr, keeperValueForCurrentTeam);
-        }
+        // Waiver pickups cost ADP + 1, so their price depends on next year's ADP
+        const lastAcquisition = transactions.find(
+            ({ type }) => !type.includes("TRADE"),
+        );
+        const isWaiverCost =
+            keeperValueForCurrentTeam > 0 &&
+            lastAcquisition?.type === "WAIVER_ADD";
 
         return {
             // ...player,
@@ -362,6 +382,8 @@ const getAllPlayersTransactions = async () => {
             name: full_name || `${team} DST`,
             position,
             keeperValueForCurrentTeam,
+            isWaiverCost,
+            keeperDraftYear: keeperSeason + 1,
             // transactions,
             diff:
                 keeperValueForCurrentTeam <= 0 || !adr
@@ -373,7 +395,7 @@ const getAllPlayersTransactions = async () => {
 
 const getRostersByTeamId = async () => {
     // const currentLeagueID = await getCurrentLeagueId();
-    const rosters = await getLeagueRosters("1225563453289148416");
+    const rosters = await getLeagueRosters(LEAGUE_ID);
     const allPlayerHistory = await getAllPlayersTransactions();
 
     const nameMap = {

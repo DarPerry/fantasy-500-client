@@ -8,6 +8,7 @@ import PlayerRow from "../components/PlayerRow/PlayerRow";
 import { getPlayersFromApiResponse } from "../helpers/players.helper";
 import classNames from "classnames";
 import PositionBadge from "../components/PositionBadge/PositionBadge";
+import { IS_IN_SEASON } from "../constants";
 
 const KeeperPricesPage = ({ data }) => {
     // console.log(2, data);
@@ -184,40 +185,43 @@ const KeeperPricesPage = ({ data }) => {
                                     Only Show Players Who Can Be Kept
                                 </label>
                             </div>
-                            <div>
-                                <input
-                                    type="checkbox"
-                                    className={styles.checkbox}
-                                    value={valueFilter}
-                                    onChange={(checked) => {
-                                        // console.log(checked);
-                                        setValueFilter(!valueFilter);
-                                    }}
-                                />
-                                <label className={styles.checkboxLabel}>
-                                    Hide Players With Negative Value
-                                </label>
-                            </div>
+                            {!IS_IN_SEASON && (
+                                <div>
+                                    <input
+                                        type="checkbox"
+                                        className={styles.checkbox}
+                                        value={valueFilter}
+                                        onChange={(checked) => {
+                                            // console.log(checked);
+                                            setValueFilter(!valueFilter);
+                                        }}
+                                    />
+                                    <label className={styles.checkboxLabel}>
+                                        Hide Players With Negative Value
+                                    </label>
+                                </div>
+                            )}
                         </div>
                     </div>
                     <div className={styles.filters}>
                         <div className={styles.filterTitle}>Sort By</div>
                         <div className={styles.sortOptions}>
                             <div className={styles.left}>
-                                {["Name", "Cost", "Value", "ADP"].map(
-                                    (label) => (
-                                        <PositionBadge
-                                            position={label}
-                                            filled={sort.key === keyMap[label]}
-                                            onClick={() =>
-                                                setSort({
-                                                    ...sort,
-                                                    key: keyMap[label],
-                                                })
-                                            }
-                                        />
-                                    )
-                                )}
+                                {(IS_IN_SEASON
+                                    ? ["Name", "Cost", "ADP"]
+                                    : ["Name", "Cost", "Value", "ADP"]
+                                ).map((label) => (
+                                    <PositionBadge
+                                        position={label}
+                                        filled={sort.key === keyMap[label]}
+                                        onClick={() =>
+                                            setSort({
+                                                ...sort,
+                                                key: keyMap[label],
+                                            })
+                                        }
+                                    />
+                                ))}
                             </div>
 
                             <PositionBadge

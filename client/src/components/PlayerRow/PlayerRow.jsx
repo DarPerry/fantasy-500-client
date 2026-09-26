@@ -2,7 +2,7 @@ import classNames from "classnames";
 import PositionBadge from "../PositionBadge/PositionBadge";
 import styles from "./PlayerRow.module.scss";
 import { getSnakeDraftPick } from "../../helpers/draft.helper";
-import { USE_PRESEASON_MODE } from "../../constants";
+import { IS_IN_SEASON } from "../../constants";
 
 const teamColors = {
     CLE: "#fb4f14",
@@ -132,7 +132,12 @@ const PlayerRow = ({
     adp,
     hotColdPlayers,
     playerId: id,
+    isWaiverCost,
+    keeperDraftYear,
 }) => {
+    // Next year's ADP isn't known during the season
+    const showAdpCost = IS_IN_SEASON && isWaiverCost;
+
     const keeperAdpCost = getSnakeDraftPick(
         rosteredByPickMap[rosteredBy],
         keeperCost
@@ -182,7 +187,7 @@ const PlayerRow = ({
                         <div className={classNames(styles.playerPosition)}>
                             {team || "FA"}
                         </div>
-                        {!USE_PRESEASON_MODE && (
+                        {!IS_IN_SEASON && (
                             <div className={classNames(styles.playerPosition)}>
                                 ADP {adp || "UDFA"} ({adr}
                                 {getNumberSuffix(adr)})
@@ -193,12 +198,17 @@ const PlayerRow = ({
             </div>
             <div className={styles.right}>
                 <div className={styles.keeperCost}>
-                    {!USE_PRESEASON_MODE && (
-                        <HotColdIcon type={hotColdPlayers[id]} />
-                    )}
+                    {!IS_IN_SEASON && <HotColdIcon type={hotColdPlayers[id]} />}
                     <div className={styles.inside}>
                         <div className={styles.keeperValue}>
-                            {keeperCost ? (
+                            {showAdpCost ? (
+                                <div>
+                                    ADP
+                                    <span className={styles.valueSuffix}>
+                                        +1
+                                    </span>
+                                </div>
+                            ) : keeperCost ? (
                                 <div>
                                     {keeperCost}
                                     <span className={styles.valueSuffix}>
@@ -210,12 +220,18 @@ const PlayerRow = ({
                             )}
                         </div>
                         <div className={styles.keeperLabel}>
-                            {!keeperCost ? "Ineligible" : " Round Pick"}
+                            {!keeperCost
+                                ? "Ineligible"
+                                : showAdpCost
+                                  ? "Round"
+                                  : " Round Pick"}
                         </div>
                     </div>
                 </div>
-                {USE_PRESEASON_MODE ? (
-                    <div className={classNames(styles.value)}>Keeper Cost</div>
+                {IS_IN_SEASON ? (
+                    <div className={classNames(styles.value)}>
+                        '{String(keeperDraftYear).slice(-2)} Keeper Cost
+                    </div>
                 ) : (
                     <>
                         <div
