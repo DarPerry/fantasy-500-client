@@ -32,9 +32,17 @@ const Header = () => {
                             {league?.name || "The Fantasy 500"}
                         </div>
                         {league?.champion && (
-                            <div className={styles.champ}>
-                                <Icon name="user-crown" />
-                                <span>{league.champion.season} Champ</span>
+                            <div
+                                className={styles.champ}
+                                title={`${league.champion.season} champion`}
+                            >
+                                <Icon
+                                    name="trophy"
+                                    className={styles.trophy}
+                                />
+                                <span className={styles.champLabel}>
+                                    Reigning Champion
+                                </span>
                                 <span className={styles.champName}>
                                     {league.champion.name}
                                 </span>

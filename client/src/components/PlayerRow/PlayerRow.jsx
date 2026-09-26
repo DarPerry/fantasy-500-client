@@ -102,7 +102,9 @@ const PlayerRow = ({
     const roundValue = keeperCost - adr;
     const hasValue = !!(adp && adr && keeperCost);
 
-    const toggle = () => setIsExpanded(!isExpanded);
+    // Older servers don't send the details, so there's nothing to expand
+    const hasDetails = !!costReason || history.length > 0;
+    const toggle = () => hasDetails && setIsExpanded(!isExpanded);
 
     return (
         <article
@@ -113,9 +115,9 @@ const PlayerRow = ({
         >
             <div
                 className={styles.summary}
-                role="button"
-                tabIndex={0}
-                aria-expanded={isExpanded}
+                role={hasDetails ? "button" : undefined}
+                tabIndex={hasDetails ? 0 : undefined}
+                aria-expanded={hasDetails ? isExpanded : undefined}
                 onClick={toggle}
                 onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
@@ -147,7 +149,12 @@ const PlayerRow = ({
                     <div className={styles.rosteredBy}>
                         <Icon name="user" />
                         {rosteredBy}
-                        <Icon name="chevron-down" className={styles.chevron} />
+                        {hasDetails && (
+                            <Icon
+                                name="chevron-down"
+                                className={styles.chevron}
+                            />
+                        )}
                     </div>
                 </div>
 
@@ -189,7 +196,9 @@ const PlayerRow = ({
             {isExpanded && (
                 <div className={styles.details}>
                     <div className={styles.detailsTitle}>Why this cost?</div>
-                    <p className={styles.reason}>{costReason}</p>
+                    {costReason && (
+                        <p className={styles.reason}>{costReason}</p>
+                    )}
                     {history.length > 0 && (
                         <ol className={styles.timeline}>
                             {history.map((move, index) => (

@@ -14,10 +14,13 @@ $cost-width: 66px;
     align-items: center;
     gap: 12px;
     padding: 12px;
-    cursor: pointer;
     border-radius: $radius;
     -webkit-user-select: none;
     user-select: none;
+
+    &[role="button"] {
+        cursor: pointer;
+    }
 }
 
 .chevron {

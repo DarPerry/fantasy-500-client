@@ -38,23 +38,41 @@ $image-size: 44px;
     text-transform: uppercase;
 }
 
+// Gold-trimmed pill, like the site's chips
 .champ {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 5px;
-    margin-top: 4px;
-    font-size: 12px;
-    font-weight: 500;
-    color: rgba($cream-light, 0.8);
+    gap: 6px;
+    margin-top: 6px;
+    padding: 3px 10px 3px 8px;
+    border-radius: 999px;
+    border: solid 1px rgba($gold, 0.45);
+    background-color: rgba($crimson-dark, 0.45);
+    box-shadow: inset 0 1px 0 rgba($cream-light, 0.08);
+}
 
-    i {
-        color: #f2c14e;
-    }
+// Same trophy as the History page's trophy case
+.trophy {
+    font-size: 12px;
+    color: $gold;
+}
+
+.champLabel {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba($cream-light, 0.75);
 }
 
 .champName {
-    font-weight: 700;
-    color: $cream-light;
+    font-family: $font-display;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: $gold;
 }
 
 // Scrolls sideways on narrow phones
