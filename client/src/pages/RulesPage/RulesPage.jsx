@@ -3,9 +3,8 @@ import classNames from "classnames";
 import Page from "../../components/Page/Page";
 import styles from "../RulesPage.module.scss";
 import { useState } from "react";
-import { ENTRY_COST } from "../../constants";
-
-// const styles = {};
+import { ENTRY_COST, PAYOUTS } from "../../constants";
+import Icon from "../../components/Icon/Icon";
 
 //https://draftysports.com/news/you-deserve-better-defense-scoring#tldr
 //https://www.thefantasyfootballers.com/articles/ballers-preferred-league-format/
@@ -23,19 +22,14 @@ const RuleCard = ({ children, title }) => {
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <span>{title}</span>
-                <i
-                    className={classNames(
-                        "fa-solid fa-chevron-down",
-                        styles.icon
-                    )}
-                />
+                <Icon name="chevron-down" className={styles.icon} />
             </button>
             {isOpen && <div className={styles.body}>{children}</div>}
         </section>
     );
 };
 
-const NewBadge = ({ isNew, isUpdated, isProposed }) => {
+const NewBadge = ({ isNew, isProposed }) => {
     if (isProposed)
         return (
             <span className={classNames(styles.newBadge, styles.proposed)}>
@@ -86,20 +80,20 @@ const RulesPage = () => {
                     />
                     <RulesListItem
                         text={"Champion"}
-                        bolded={`$${ENTRY_COST * (20 / 3)}`}
+                        bolded={`$${PAYOUTS.champion}`}
                     />
                     <RulesListItem
                         text={"Runner-Up"}
-                        bolded={`$${ENTRY_COST * (8 / 3)}`}
+                        bolded={`$${PAYOUTS.runnerUp}`}
                     />
                     <RulesListItem
                         text={"3rd Place"}
-                        bolded={`$${ENTRY_COST}`}
+                        bolded={`$${PAYOUTS.third}`}
                     />
 
                     <RulesListItem
                         text={" Highest Weekly Score  (Regular Season)"}
-                        bolded={"$125"}
+                        bolded={`$${PAYOUTS.weeklyHighScore}`}
                     />
                 </RulesList>
             </RuleCard>
@@ -236,6 +230,10 @@ const RulesPage = () => {
                     <RulesListItem
                         text={"Player drafted in rounds 1 or 2"}
                         bolded={"Not eligible"}
+                    />
+                    <RulesListItem
+                        text={"Two keepers that cost the same round"}
+                        bolded={"One moves up a round"}
                     />
                     <RulesListItem
                         text={"Kept player traded to a new team"}

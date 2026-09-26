@@ -6,8 +6,10 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { LEAGUE_ID } from "../config/index.config.js";
-import { getLeagueRosters } from "../services/league.service.js";
+import {
+    getCurrentLeague,
+    getLeagueRosters,
+} from "../services/league.service.js";
 import { getAllPlayers } from "../services/player.service.js";
 
 const IMAGE_DIR = path.resolve(
@@ -51,7 +53,7 @@ const TEAM_NAMES = {
     WAS: "washington-commanders",
 };
 
-// Must match getPlayerImage in client/src/components/PlayerRow/PlayerRow.jsx
+// Must match getPlayerImage in client/src/components/PlayerImage/PlayerImage.jsx
 const getImageFileName = (name) =>
     `${name.toLowerCase().replaceAll(".", "").replaceAll("'", "").split(" ").join("-")}.png`;
 
@@ -108,8 +110,9 @@ const findStatMuseImage = async (player) => {
 };
 
 const main = async () => {
+    const { league_id } = await getCurrentLeague();
     const [rosters, allPlayers] = await Promise.all([
-        getLeagueRosters(LEAGUE_ID),
+        getLeagueRosters(league_id),
         getAllPlayers(),
     ]);
 

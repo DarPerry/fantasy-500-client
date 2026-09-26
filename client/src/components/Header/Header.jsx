@@ -2,15 +2,19 @@ import classNames from "classnames";
 
 import styles from "./Header.module.scss";
 import { Link, useLocation } from "react-router-dom";
-import { REIGNING_CHAMPION } from "../../constants";
+import { useLeague } from "../../context/league";
+import Icon from "../Icon/Icon";
 
 const pages = [
-    { path: "/keeperPrices", label: "Keeper Prices" },
+    { path: "/keeperPrices", label: "Keepers" },
+    { path: "/planner", label: "Planner" },
+    { path: "/history", label: "History" },
     { path: "/rules", label: "Rules" },
 ];
 
 const Header = () => {
     const { pathname } = useLocation();
+    const { league } = useLeague();
     // "/" also shows keeper prices
     const activePath = pathname === "/" ? "/keeperPrices" : pathname;
 
@@ -24,14 +28,18 @@ const Header = () => {
                         alt=""
                     />
                     <div>
-                        <div className={styles.leagueName}>The Fantasy 500</div>
-                        <div className={styles.champ}>
-                            <i className="fa-solid fa-user-crown" />
-                            <span>Reigning Champ</span>
-                            <span className={styles.champName}>
-                                {REIGNING_CHAMPION}
-                            </span>
+                        <div className={styles.leagueName}>
+                            {league?.name || "The Fantasy 500"}
                         </div>
+                        {league?.champion && (
+                            <div className={styles.champ}>
+                                <Icon name="user-crown" />
+                                <span>{league.champion.season} Champ</span>
+                                <span className={styles.champName}>
+                                    {league.champion.name}
+                                </span>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <nav className={styles.pages}>
@@ -43,6 +51,9 @@ const Header = () => {
                                 styles.page,
                                 activePath === path && styles.active
                             )}
+                            aria-current={
+                                activePath === path ? "page" : undefined
+                            }
                         >
                             {label}
                         </Link>

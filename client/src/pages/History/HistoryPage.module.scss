@@ -1,0 +1,218 @@
+@import "../../styles/theme.scss";
+
+.intro {
+    padding: 18px 0 12px;
+}
+
+.title {
+    @include page-title;
+}
+
+.sectionTitle {
+    @include page-title;
+    margin: 24px 0 12px;
+    font-size: 21px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+
+    @media (min-width: $tablet) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+    }
+}
+
+.card {
+    @include card;
+    padding: 16px;
+}
+
+.eyebrow {
+    @include eyebrow;
+}
+
+.muted {
+    font-size: 12px;
+    color: $ink-muted;
+}
+
+.mine {
+    background-color: #fdf1f1;
+}
+
+.rank {
+    width: 24px;
+    font-family: $font-display;
+    font-size: 15px;
+    font-weight: 800;
+    color: $crimson;
+}
+
+.rowName {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+}
+
+// Weekly high score race
+
+.leader {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.leaderName {
+    font-family: $font-display;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1;
+    color: $ink;
+}
+
+.leaderPoints {
+    font-family: $font-display;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1;
+    color: $crimson;
+}
+
+.rankList {
+    list-style: none;
+    margin-top: 12px;
+
+    li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 36px;
+        padding: 0 6px;
+        border-radius: 6px;
+        font-size: 13px;
+
+        & + li {
+            border-top: dashed 1px $line;
+        }
+    }
+}
+
+// Trophy case
+
+.trophies {
+    list-style: none;
+    margin-top: 8px;
+
+    li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 36px;
+        padding: 0 6px;
+        border-radius: 6px;
+        font-size: 13px;
+
+        & + li {
+            border-top: dashed 1px $line;
+        }
+    }
+}
+
+.trophyIcons {
+    display: flex;
+    gap: 4px;
+    color: #d9a520;
+}
+
+// Past seasons
+
+.seasons {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+
+    @media (min-width: $tablet) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.seasonCard {
+    @include card;
+    padding: 14px 16px;
+}
+
+.seasonHeader {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
+}
+
+.year {
+    font-family: $font-display;
+    font-size: 24px;
+    font-weight: 800;
+    color: $crimson;
+}
+
+.leagueName {
+    font-size: 12px;
+    color: $ink-muted;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.podium {
+    list-style: none;
+    margin-top: 6px;
+
+    li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 32px;
+        font-size: 13px;
+
+        i {
+            width: 16px;
+            text-align: center;
+        }
+    }
+}
+
+.gold i {
+    color: #d9a520;
+}
+
+.silver i {
+    color: #9aa0a6;
+}
+
+.bronze i {
+    color: #b0703c;
+}
+
+.highScore {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: dashed 1px $line;
+    font-size: 12px;
+    color: $ink-muted;
+
+    i {
+        color: #ffaa00;
+    }
+
+    b {
+        color: $ink;
+    }
+}

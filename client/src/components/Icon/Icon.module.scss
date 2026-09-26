@@ -1,0 +1,20 @@
+.icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-style: normal;
+
+    svg {
+        height: 1em;
+        width: auto;
+        overflow: visible;
+        fill: currentColor;
+    }
+}
+
+// Duotone icons: the second layer takes --icon-secondary-color if set
+.secondary {
+    fill: var(--icon-secondary-color, currentColor);
+    opacity: var(--icon-secondary-opacity, 0.4);
+}

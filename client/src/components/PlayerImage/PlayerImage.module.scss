@@ -1,0 +1,54 @@
+@import "../../styles/theme.scss";
+
+.imageContainer {
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $cream;
+    background-color: color-mix(in srgb, var(--team) 22%, #{$paper});
+    box-shadow: inset 0 -3px 0 var(--team);
+
+    &.large {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+
+        .imageFallback {
+            font-size: 22px;
+        }
+    }
+
+    &.small {
+        width: 40px;
+        height: 40px;
+        border-radius: 9px;
+        box-shadow: inset 0 -2px 0 var(--team);
+
+        .imageFallback {
+            font-size: 15px;
+        }
+    }
+}
+
+.playerImage {
+    position: absolute;
+    width: 124%;
+    left: -12%;
+    top: 10%;
+
+    &.defense {
+        width: 100%;
+        left: 0;
+        top: 0;
+        padding: 12%;
+    }
+}
+
+.imageFallback {
+    font-family: $font-display;
+    font-weight: 800;
+    color: var(--team);
+}

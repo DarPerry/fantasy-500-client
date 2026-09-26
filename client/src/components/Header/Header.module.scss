@@ -10,7 +10,8 @@ $image-size: 44px;
 .inner {
     max-width: $content-width;
     margin: 0 auto;
-    padding: 16px 16px 0;
+    // Room for the status bar when opened from the home screen
+    padding: calc(16px + env(safe-area-inset-top)) 16px 0;
 }
 
 .brand {
@@ -56,13 +57,22 @@ $image-size: 44px;
     color: $cream-light;
 }
 
+// Scrolls sideways on narrow phones
 .pages {
     display: flex;
-    gap: 22px;
-    margin-top: 14px;
+    gap: 20px;
+    margin: 14px -16px 0;
+    padding: 0 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
 }
 
 .page {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     min-height: 40px;
@@ -70,6 +80,7 @@ $image-size: 44px;
     font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.2px;
+    white-space: nowrap;
     color: rgba($cream-light, 0.7);
     text-decoration: none;
     border-bottom: solid 3px transparent;

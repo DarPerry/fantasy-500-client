@@ -1,0 +1,285 @@
+@import "../../styles/theme.scss";
+
+.intro {
+    padding: 18px 0 12px;
+}
+
+.title {
+    @include page-title;
+}
+
+.subtitle {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: $ink-muted;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+
+    // Summary beside the list on tablets
+    @media (min-width: $tablet) {
+        grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+        align-items: start;
+    }
+}
+
+// Summary
+
+.summary {
+    @include card;
+    padding: 16px;
+
+    @media (min-width: $tablet) {
+        position: sticky;
+        top: 12px;
+    }
+}
+
+.summaryHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.eyebrow {
+    @include eyebrow;
+}
+
+.count {
+    font-family: $font-display;
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1;
+    color: $crimson;
+
+    span {
+        font-size: 22px;
+        color: $ink-muted;
+    }
+}
+
+.clear {
+    min-height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: $ink-muted;
+    border: solid 1px $line;
+}
+
+.empty {
+    margin-top: 12px;
+    font-size: 13px;
+    color: $ink-muted;
+    list-style: none;
+}
+
+.picks {
+    list-style: none;
+    margin-top: 12px;
+
+    li {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        padding: 8px 0;
+        font-size: 13px;
+
+        & + li {
+            border-top: dashed 1px $line;
+        }
+    }
+}
+
+.pickRound {
+    flex-shrink: 0;
+    width: 52px;
+    font-family: $font-display;
+    font-size: 17px;
+    font-weight: 800;
+    color: $crimson;
+}
+
+.pickDetails {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+}
+
+.moved {
+    font-size: 11px;
+    line-height: 1.35;
+    color: #7a4b00;
+}
+
+.swap {
+    min-height: 32px;
+    padding: 0;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: left;
+    color: $crimson;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.pickName {
+    max-width: 100%;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lockIcon {
+    margin-right: 6px;
+    font-size: 11px;
+    color: #d9a520;
+}
+
+.pickNumber {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: $ink-muted;
+}
+
+.notice {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #7a4b00;
+    background-color: #fff4dc;
+
+    i {
+        margin-top: 2px;
+    }
+}
+
+.notice {
+    margin: 0 0 10px;
+}
+
+.lottery {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: solid 1px $line;
+
+    p {
+        margin-top: 4px;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+}
+
+.declared {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #1e7b3a;
+}
+
+.footnote {
+    margin-top: 12px;
+    font-size: 11px;
+    line-height: 1.4;
+    color: $ink-muted;
+}
+
+// Player list
+
+.players {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.player {
+    @include card;
+    display: flex;
+    align-items: center;
+    border: solid 2px transparent;
+    transition: border-color 0.15s;
+
+    &.selected {
+        border-color: $crimson;
+    }
+}
+
+.select {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 4px 10px 12px;
+    text-align: left;
+}
+
+.check {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: solid 2px $line;
+    font-size: 11px;
+    color: $paper;
+
+    .selected & {
+        background-color: $crimson;
+        border-color: $crimson;
+    }
+}
+
+.playerInfo {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.playerName {
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: $ink-muted;
+}
+
+.protect {
+    flex-shrink: 0;
+    width: 48px;
+    align-self: stretch;
+    font-size: 18px;
+    color: $line;
+    border-left: solid 1px $cream;
+
+    &.active {
+        color: #d9a520;
+    }
+}

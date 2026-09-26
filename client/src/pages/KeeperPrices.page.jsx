@@ -1,55 +1,27 @@
-import { useEffect, useRef, useState } from "react";
-import _ from "lodash";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { orderBy, sortBy } from "lodash-es";
 import classNames from "classnames";
 import styles from "./KeeperPrices.module.scss";
 
 import Page from "../components/Page/Page";
 import PlayerRow from "../components/PlayerRow/PlayerRow";
 import { getPlayersFromApiResponse } from "../helpers/players.helper";
-import { IS_IN_SEASON } from "../constants";
+import { readStorage, writeStorage } from "../helpers/storage.helper";
+import { useLeague } from "../context/league";
+import { Chip, ChipRow } from "../components/Chip/Chip";
+import Icon from "../components/Icon/Icon";
 
 const POSITIONS = ["ALL", "QB", "RB", "WR", "TE", "K", "DEF"];
 
-const SORT_OPTIONS = [
-    { label: "ADP", key: "adp" },
-    { label: "Cost", key: "keeperValueForCurrentTeam" },
-    { label: "Name", key: "name" },
-    // Value compares against ADP, which is stale during the season
-    ...(IS_IN_SEASON ? [] : [{ label: "Value", key: "diff" }]),
+const ALL_SORT_OPTIONS = [
+    { id: "adp", label: "ADP", key: "adp" },
+    { id: "cost", label: "Cost", key: "keeperValueForCurrentTeam" },
+    { id: "name", label: "Name", key: "name" },
+    { id: "value", label: "Value", key: "diff", offseasonOnly: true },
 ];
 
-// Keeps filters when switching to the rules page and back
-const useSessionState = (key, initialValue) => {
-    const [value, setValue] = useState(() => {
-        try {
-            const saved = sessionStorage.getItem(key);
-            return saved === null ? initialValue : JSON.parse(saved);
-        } catch {
-            return initialValue;
-        }
-    });
-
-    useEffect(() => {
-        try {
-            sessionStorage.setItem(key, JSON.stringify(value));
-        } catch {
-            // Storage can be unavailable (e.g. private browsing)
-        }
-    }, [key, value]);
-
-    return [value, setValue];
-};
-
-const Chip = ({ active, onClick, children, className }) => (
-    <button
-        type="button"
-        className={classNames(styles.chip, active && styles.active, className)}
-        aria-pressed={active}
-        onClick={onClick}
-    >
-        {children}
-    </button>
-);
+const FILTERS_STORAGE_KEY = "keeperFilters";
 
 const Toggle = ({ checked, onChange, label }) => (
     <label className={styles.toggle}>
@@ -63,31 +35,94 @@ const Toggle = ({ checked, onChange, label }) => (
     </label>
 );
 
-const KeeperPricesPage = ({ data, hasError, onRetry }) => {
-    const [rosterFilter, setRosterFilter] = useSessionState("team", "All");
-    const [positionFilter, setPositionFilter] = useSessionState(
-        "position",
-        "ALL"
-    );
+// Filters live in the URL so a filtered view can be shared as a link, and are
+// remembered for the session when switching pages
+const useKeeperFilters = (defaultTeam) => {
+    const [params, setParams] = useSearchParams();
 
-    const [valueFilter, setValueFilter] = useSessionState(
-        "hideNegative",
-        false
-    );
-    const [ineligibleFilter, setIneligibleFilter] = useSessionState(
-        "keepableOnly",
-        true
-    );
+    useLayoutEffect(() => {
+        const saved = readStorage(sessionStorage, FILTERS_STORAGE_KEY, "");
 
-    const [sort, setSort] = useSessionState("sort", {
-        key: "adp",
-        direction: "asc",
-    });
+        if (!params.toString() && saved) {
+            setParams(saved, { replace: true });
+        }
+        // Only restore once, on arrival
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        writeStorage(sessionStorage, FILTERS_STORAGE_KEY, params.toString());
+    }, [params]);
+
+    const update = (key, value, defaultValue) => {
+        const next = new URLSearchParams(params);
+
+        if (value === defaultValue || value === "") {
+            next.delete(key);
+        } else {
+            next.set(key, value);
+        }
+
+        setParams(next, { replace: true });
+    };
+
+    return {
+        team: params.get("team") || defaultTeam,
+        position: params.get("pos") || "ALL",
+        sortId: params.get("sort") || "adp",
+        direction: params.get("dir") === "desc" ? "desc" : "asc",
+        keepableOnly: params.get("all") !== "1",
+        hideNegative: params.get("hideneg") === "1",
+        search: params.get("q") || "",
+        setTeam: (team) => update("team", team, defaultTeam),
+        setPosition: (position) => update("pos", position, "ALL"),
+        setSortId: (sortId) => update("sort", sortId, "adp"),
+        setDirection: (direction) => update("dir", direction, "asc"),
+        setKeepableOnly: (keepableOnly) =>
+            update("all", keepableOnly ? "0" : "1", "0"),
+        setHideNegative: (hide) => update("hideneg", hide ? "1" : "0", "0"),
+        setSearch: (search) => update("q", search, ""),
+    };
+};
+
+const KeeperPricesPage = () => {
+    const {
+        players: allPlayers,
+        managers,
+        league,
+        isInSeason,
+        isLoading,
+        hasError,
+        reload,
+        myTeam,
+        setMyUserId,
+    } = useLeague();
+
+    const filters = useKeeperFilters(myTeam?.name || "All");
+    const [toast, setToast] = useState(null);
+
+    // Value compares against ADP, which is stale during the season
+    const sortOptions = ALL_SORT_OPTIONS.filter(
+        ({ offseasonOnly }) => !(offseasonOnly && isInSeason)
+    );
+    const sortOption =
+        sortOptions.find(({ id }) => id === filters.sortId) || sortOptions[0];
+
+    const players = getPlayersFromApiResponse(
+        allPlayers,
+        { key: sortOption.key, direction: filters.direction },
+        {
+            position: filters.position,
+            roster: filters.team,
+            ineligible: filters.keepableOnly,
+            value: !isInSeason && filters.hideNegative,
+            search: filters.search,
+        }
+    );
 
     // Show a slim summary bar once the filters scroll off screen
     const controlsRef = useRef(null);
     const [showSummaryBar, setShowSummaryBar] = useState(false);
-    const isLoading = data === null;
 
     useEffect(() => {
         if (!controlsRef.current) return;
@@ -102,41 +137,38 @@ const KeeperPricesPage = ({ data, hasError, onRetry }) => {
         return () => observer.disconnect();
     }, [isLoading, hasError]);
 
-    // A saved offseason sort/filter (e.g. Value) may not apply in season
-    const sortOption =
-        SORT_OPTIONS.find(({ key }) => key === sort.key) || SORT_OPTIONS[0];
+    useEffect(() => {
+        if (!toast) return;
 
-    const players = getPlayersFromApiResponse(
-        data,
-        { ...sort, key: sortOption.key },
-        {
-            position: positionFilter,
-            roster: rosterFilter,
-            ineligible: ineligibleFilter,
-            value: !IS_IN_SEASON && valueFilter,
-        }
-    );
+        const timeout = setTimeout(() => setToast(null), 2500);
+        return () => clearTimeout(timeout);
+    }, [toast]);
 
-    const allPlayers = _.flattenDeep(Object.values(data || {}));
+    const owners = sortBy(managers.map(({ name }) => name));
+    // Your team first
+    const teamChips = [
+        "All",
+        ...(myTeam ? [myTeam.name] : []),
+        ...owners.filter((name) => name !== myTeam?.name),
+    ];
 
-    const owners = _.sortBy(
-        _.uniq(allPlayers.map(({ rosteredBy }) => rosteredBy)).filter(Boolean)
-    );
+    const draftSlots = managers.reduce((acc, { name, draftSlot }) => {
+        acc[name] = draftSlot;
+        return acc;
+    }, {});
 
     const hcThreshold = 20;
 
-    const filtered = allPlayers.filter(
+    const withValue = allPlayers.filter(
         ({ adp, keeperValueForCurrentTeam }) => adp && keeperValueForCurrentTeam
     );
 
-    const hotColdPlayers = _.orderBy(filtered, ["diff", "adp"]).reduce(
+    const hotColdPlayers = orderBy(withValue, ["diff", "adp"]).reduce(
         (acc, { playerId }, index) => {
             if (index < hcThreshold) {
                 acc[playerId] = "HOT";
-            } else if (index > filtered.length - hcThreshold) {
+            } else if (index > withValue.length - hcThreshold) {
                 acc[playerId] = "COLD";
-            } else {
-                acc[playerId] = null;
             }
 
             return acc;
@@ -144,15 +176,43 @@ const KeeperPricesPage = ({ data, hasError, onRetry }) => {
         {}
     );
 
-    const sortLabel = sortOption.label;
+    const playerCount = `${players.length} ${
+        players.length === 1 ? "player" : "players"
+    }`;
 
     const summary = [
-        rosterFilter === "All" ? "All teams" : rosterFilter,
-        positionFilter === "ALL" ? "All positions" : positionFilter,
-    ].join(" · ");
+        filters.team === "All" ? "All teams" : filters.team,
+        filters.position === "ALL" ? "All positions" : filters.position,
+        filters.search && `“${filters.search}”`,
+    ]
+        .filter(Boolean)
+        .join(" · ");
+
+    const selectedManager = managers.find(({ name }) => name === filters.team);
+    const isMyTeamSelected = !!myTeam && myTeam.name === filters.team;
+
+    const share = async () => {
+        const url = new URL(window.location.href);
+        // Always include the team so the link shows the same view for others
+        url.searchParams.set("team", filters.team);
+
+        try {
+            if (navigator.share) {
+                await navigator.share({
+                    title: `${summary} keepers`,
+                    url: url.toString(),
+                });
+            } else {
+                await navigator.clipboard.writeText(url.toString());
+                setToast("Link copied");
+            }
+        } catch (error) {
+            if (error?.name !== "AbortError") setToast("Couldn't share link");
+        }
+    };
 
     return (
-        <Page isLoading={isLoading} hasError={hasError} onRetry={onRetry}>
+        <Page isLoading={isLoading} hasError={hasError} onRetry={reload}>
             <div
                 className={classNames(
                     styles.summaryBar,
@@ -164,8 +224,8 @@ const KeeperPricesPage = ({ data, hasError, onRetry }) => {
                     <div className={styles.summaryText}>
                         <b>{summary}</b>
                         <span>
-                            {players.length} players · {sortLabel}{" "}
-                            {sort.direction === "asc" ? "↑" : "↓"}
+                            {playerCount} · {sortOption.label}{" "}
+                            {filters.direction === "asc" ? "↑" : "↓"}
                         </span>
                     </div>
                     <button
@@ -176,58 +236,84 @@ const KeeperPricesPage = ({ data, hasError, onRetry }) => {
                             window.scrollTo({ top: 0, behavior: "smooth" })
                         }
                     >
-                        <i className="fa-solid fa-sliders" />
+                        <Icon name="sliders" />
                         Filters
                     </button>
                 </div>
             </div>
 
             <section className={styles.controls} ref={controlsRef}>
+                <div className={styles.search}>
+                    <Icon name="magnifying-glass" />
+                    <input
+                        type="search"
+                        placeholder="Search players"
+                        aria-label="Search players"
+                        value={filters.search}
+                        onChange={(event) =>
+                            filters.setSearch(event.target.value)
+                        }
+                        enterKeyHint="search"
+                        autoComplete="off"
+                    />
+                    {filters.search && (
+                        <button
+                            type="button"
+                            className={styles.clearSearch}
+                            aria-label="Clear search"
+                            onClick={() => filters.setSearch("")}
+                        >
+                            <Icon name="xmark" />
+                        </button>
+                    )}
+                </div>
+
                 <div className={styles.filterRow}>
                     <div className={styles.filterLabel}>Team</div>
-                    <div className={classNames(styles.chips, styles.fade)}>
-                        {["All", ...owners].map((owner) => (
+                    <ChipRow fade>
+                        {teamChips.map((owner) => (
                             <Chip
                                 key={owner}
-                                active={rosterFilter === owner}
-                                onClick={() => setRosterFilter(owner)}
+                                active={filters.team === owner}
+                                onClick={() => filters.setTeam(owner)}
+                                starred={owner === myTeam?.name}
                             >
                                 {owner}
                             </Chip>
                         ))}
-                    </div>
+                    </ChipRow>
                 </div>
 
                 <div className={styles.filterRow}>
                     <div className={styles.filterLabel}>Position</div>
-                    <div className={styles.chips}>
+                    <ChipRow>
                         {POSITIONS.map((position) => (
                             <Chip
                                 key={position}
-                                active={positionFilter === position}
-                                onClick={() => setPositionFilter(position)}
-                                className={styles[position]}
+                                active={filters.position === position}
+                                onClick={() => filters.setPosition(position)}
+                                variant={position}
                             >
                                 {position === "ALL" ? "All" : position}
                             </Chip>
                         ))}
-                    </div>
+                    </ChipRow>
                 </div>
 
                 <div className={styles.filterRow}>
                     <div className={styles.filterLabel}>Sort</div>
                     <div className={styles.sortRow}>
                         <div className={styles.segmented}>
-                            {SORT_OPTIONS.map(({ label, key }) => (
+                            {sortOptions.map(({ id, label }) => (
                                 <button
                                     type="button"
-                                    key={key}
+                                    key={id}
                                     className={classNames(
                                         styles.segment,
-                                        sortOption.key === key && styles.active
+                                        sortOption.id === id && styles.active
                                     )}
-                                    aria-pressed={sortOption.key === key}
-                                    onClick={() => setSort({ ...sort, key })}
+                                    aria-pressed={sortOption.id === id}
+                                    onClick={() => filters.setSortId(id)}
                                 >
                                     {label}
                                 </button>
@@ -237,40 +323,36 @@ const KeeperPricesPage = ({ data, hasError, onRetry }) => {
                             type="button"
                             className={styles.direction}
                             aria-label={`Sort ${
-                                sort.direction === "asc"
+                                filters.direction === "asc"
                                     ? "descending"
                                     : "ascending"
                             }`}
                             onClick={() =>
-                                setSort({
-                                    ...sort,
-                                    direction:
-                                        sort.direction === "asc"
-                                            ? "desc"
-                                            : "asc",
-                                })
+                                filters.setDirection(
+                                    filters.direction === "asc" ? "desc" : "asc"
+                                )
                             }
                         >
-                            <i
-                                className={`fa-solid fa-arrow-${
-                                    sort.direction === "asc" ? "up" : "down"
+                            <Icon
+                                name={`arrow-${
+                                    filters.direction === "asc" ? "up" : "down"
                                 }-short-wide`}
                             />
-                            {sort.direction === "asc" ? "Asc" : "Desc"}
+                            {filters.direction === "asc" ? "Asc" : "Desc"}
                         </button>
                     </div>
                 </div>
 
                 <div className={styles.toggles}>
                     <Toggle
-                        checked={ineligibleFilter}
-                        onChange={setIneligibleFilter}
+                        checked={filters.keepableOnly}
+                        onChange={filters.setKeepableOnly}
                         label="Keepable only"
                     />
-                    {!IS_IN_SEASON && (
+                    {!isInSeason && (
                         <Toggle
-                            checked={valueFilter}
-                            onChange={setValueFilter}
+                            checked={filters.hideNegative}
+                            onChange={filters.setHideNegative}
                             label="Hide negative value"
                         />
                     )}
@@ -279,9 +361,39 @@ const KeeperPricesPage = ({ data, hasError, onRetry }) => {
 
             <div className={styles.resultsBar}>
                 <span>
-                    <b>{players.length}</b> players
+                    <b>{players.length}</b>{" "}
+                    {players.length === 1 ? "player" : "players"}
                 </span>
-                <span>Sorted by {sortLabel}</span>
+                <div className={styles.resultsActions}>
+                    {selectedManager && (
+                        <button
+                            type="button"
+                            className={classNames(
+                                styles.textButton,
+                                isMyTeamSelected && styles.active
+                            )}
+                            aria-pressed={isMyTeamSelected}
+                            onClick={() =>
+                                setMyUserId(
+                                    isMyTeamSelected
+                                        ? null
+                                        : selectedManager.userId
+                                )
+                            }
+                        >
+                            <Icon name="star" />
+                            {isMyTeamSelected ? "My team" : "Set as my team"}
+                        </button>
+                    )}
+                    <button
+                        type="button"
+                        className={styles.textButton}
+                        onClick={share}
+                    >
+                        <Icon name="arrow-up-from-bracket" />
+                        Share
+                    </button>
+                </div>
             </div>
 
             <div className={styles.list}>
@@ -290,6 +402,9 @@ const KeeperPricesPage = ({ data, hasError, onRetry }) => {
                         key={player.playerId}
                         {...player}
                         hotColdPlayers={hotColdPlayers}
+                        draftSlot={draftSlots[player.rosteredBy]}
+                        teams={league?.teams}
+                        isInSeason={isInSeason}
                     />
                 ))}
                 {players.length === 0 && (
@@ -297,6 +412,13 @@ const KeeperPricesPage = ({ data, hasError, onRetry }) => {
                         No players match these filters.
                     </div>
                 )}
+            </div>
+
+            <div
+                className={classNames(styles.toast, toast && styles.visible)}
+                role="status"
+            >
+                {toast}
             </div>
         </Page>
     );

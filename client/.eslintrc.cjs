@@ -11,5 +11,8 @@ module.exports = {
   plugins: ['react-refresh'],
   rules: {
     'react-refresh/only-export-components': 'warn',
+    // The project doesn't use PropTypes, and React renders apostrophes fine
+    'react/prop-types': 'off',
+    'react/no-unescaped-entities': 'off',
   },
 }

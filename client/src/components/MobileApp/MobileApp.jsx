@@ -1,59 +1,36 @@
 import styles from "./MobileApp.module.scss";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 
 import Header from "../Header/Header";
 import KeeperPricesPage from "../../pages/KeeperPrices.page";
+import PlannerPage from "../../pages/Planner/PlannerPage";
+import HistoryPage from "../../pages/History/HistoryPage";
 import RulesPage from "../../pages/RulesPage/RulesPage";
-
-const API_URL =
-    window.location.hostname === "localhost"
-        ? "http://localhost:1739/"
-        : "https://indy-ff-site-server.onrender.com/";
+import { LeagueProvider } from "../../context/LeagueContext";
 
 const MobileApp = () => {
-    const [data, setData] = useState(null);
-    const [hasError, setHasError] = useState(false);
     const { pathname } = useLocation();
-
-    const getData = useCallback(async () => {
-        setHasError(false);
-
-        try {
-            const response = await fetch(API_URL);
-
-            if (!response.ok) throw new Error(response.statusText);
-
-            setData(await response.json());
-        } catch (error) {
-            console.error(error);
-            setHasError(true);
-        }
-    }, []);
-
-    useEffect(() => {
-        getData();
-    }, [getData]);
 
     // Start each page at the top instead of the previous page's scroll position
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [pathname]);
 
-    const keeperPricesPage = (
-        <KeeperPricesPage data={data} hasError={hasError} onRetry={getData} />
-    );
-
     return (
-        <div className={styles.mobileApp}>
-            <Header />
-            <Routes>
-                <Route path="/" element={keeperPricesPage} />
-                <Route path="keeperPrices" element={keeperPricesPage} />
-                <Route path="rules" element={<RulesPage />} />
-            </Routes>
-        </div>
+        <LeagueProvider>
+            <div className={styles.mobileApp}>
+                <Header />
+                <Routes>
+                    <Route path="/" element={<KeeperPricesPage />} />
+                    <Route path="keeperPrices" element={<KeeperPricesPage />} />
+                    <Route path="planner" element={<PlannerPage />} />
+                    <Route path="history" element={<HistoryPage />} />
+                    <Route path="rules" element={<RulesPage />} />
+                </Routes>
+            </div>
+        </LeagueProvider>
     );
 };
 

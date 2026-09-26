@@ -1,26 +1,40 @@
-import _ from "lodash";
+import { orderBy } from "lodash-es";
 
-export const getPlayersFromApiResponse = (
-    apiResponse,
-    sortMetadata,
-    filters
-) => {
+// Lowercase, no accents or punctuation: "Ka'imi Fairbairn" -> "kaimi fairbairn"
+const normalizeSearch = (text = "") =>
+    text
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .replace(/[^a-z0-9 ]/gi, "")
+        .toLowerCase()
+        .trim();
+
+// Blank values (no ADP, not keepable) sort last in either direction
+const isBlank = (player, sortProp) => {
+    const value = player[sortProp];
+
+    if (sortProp === "keeperValueForCurrentTeam") return !value;
+    if (sortProp === "diff") return value === 999;
+
+    return value === null || value === undefined;
+};
+
+export const getPlayersFromApiResponse = (players, sortMetadata, filters) => {
     const { key: sortProp, direction: sortDirection } = sortMetadata;
     const {
         position: positionFilter,
         roster: rosterFilter,
         ineligible: ineligibleFilter,
         value: valueFilter,
+        search = "",
     } = filters;
 
-    return _.orderBy(
-        _.flattenDeep(Object.values(apiResponse || {})),
-        [
-            sortProp,
-            // "diff",
-            "adp",
-        ],
-        sortDirection
+    const searchText = normalizeSearch(search);
+
+    return orderBy(
+        players,
+        [(player) => isBlank(player, sortProp), sortProp, "adp"],
+        ["asc", sortDirection, "asc"]
     ).filter(
         ({
             adp,
@@ -28,7 +42,7 @@ export const getPlayersFromApiResponse = (
             position,
             rosteredBy,
             adr,
-            ...r
+            name,
         }) => {
             const isFilteredPosition =
                 positionFilter === position ||
@@ -40,7 +54,8 @@ export const getPlayersFromApiResponse = (
                 (positionFilter === "ALL" || isFilteredPosition) &&
                 (rosterFilter === "All" || rosteredBy === rosterFilter) &&
                 (!ineligibleFilter || keeperValueForCurrentTeam) &&
-                (!valueFilter || (value >= 0 && adp))
+                (!valueFilter || (value >= 0 && adp)) &&
+                (!searchText || normalizeSearch(name).includes(searchText))
             );
         }
     );

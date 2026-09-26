@@ -1,0 +1,87 @@
+@import "../../styles/theme.scss";
+
+$positions: (
+    QB: $qb-color,
+    RB: $rb-color,
+    WR: $wr-color,
+    TE: $te-color,
+    K: $k-color,
+    DEF: $def-color,
+);
+
+.chips {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    min-width: 0;
+    padding: 2px 16px 2px 0;
+    margin-right: -16px;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    // Room to show every chip on wider screens
+    @media (min-width: $tablet) {
+        flex-wrap: wrap;
+        margin-right: 0;
+        padding-right: 0;
+    }
+}
+
+.fade {
+    -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent);
+    mask-image: linear-gradient(90deg, #000 88%, transparent);
+
+    @media (min-width: $tablet) {
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+}
+
+.chip {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: $ink-muted;
+    background-color: $paper;
+    border: solid 1px $line;
+    transition:
+        background-color 0.15s,
+        color 0.15s,
+        border-color 0.15s;
+
+    &.active {
+        color: $cream-light;
+        background-color: $crimson;
+        border-color: $crimson;
+    }
+
+    @each $position, $color in $positions {
+        &.#{$position} {
+            color: darken($color, 8%);
+
+            &.active {
+                color: $paper;
+                background-color: $color;
+                border-color: $color;
+            }
+        }
+    }
+}
+
+.star {
+    margin-right: 5px;
+    font-size: 10px;
+    color: #d9a520;
+
+    .active & {
+        color: #f2c14e;
+    }
+}
