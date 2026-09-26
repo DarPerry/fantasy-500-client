@@ -1,104 +1,31 @@
 @import "../../styles/theme.scss";
 
-.playerPosition {
-    color: $iu-cream;
-    padding: 2px 4px;
-    border-radius: 4px;
-    font-weight: 700;
-    font-size: 0.65rem;
-    min-width: 25px;
-    text-align: center;
-    background-color: $bsu-light-gray;
-    color: $bsu-dark-gray;
-    border: solid 2px $bsu-dark-gray;
-    cursor: pointer;
-    display: flex;
-    flex-direction: row;
+$positions: (
+    QB: $qb-color,
+    RB: $rb-color,
+    WR: $wr-color,
+    TE: $te-color,
+    K: $k-color,
+    DEF: $def-color,
+);
+
+.positionBadge {
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
+    min-width: 30px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    color: $ink-muted;
+    background-color: rgba($ink-muted, 0.12);
 
-    &.filled {
-        background-color: $bsu-dark-gray;
-        border-color: $bsu-dark-gray;
-        color: $iu-cream;
-    }
-
-    border-color: $bsu-dark-gray;
-    background-color: $iu-cream;
-    color: $bsu-dark-gray;
-
-    &.QB {
-        &.filled {
-            background-color: $qb-color;
-            border-color: $qb-color;
-            color: $iu-cream;
+    @each $position, $color in $positions {
+        &.#{$position} {
+            color: darken($color, 8%);
+            background-color: rgba($color, 0.14);
         }
-
-        border-color: $qb-color;
-        background-color: $iu-cream;
-        color: $qb-color;
     }
-
-    &.RB {
-        &.filled {
-            background-color: $rb-color;
-            border-color: $rb-color;
-            color: $iu-cream;
-        }
-
-        border-color: $rb-color;
-        background-color: $iu-cream;
-        color: $rb-color;
-    }
-
-    &.WR {
-        &.filled {
-            background-color: $wr-color;
-            border-color: $wr-color;
-            color: $iu-cream;
-        }
-
-        border-color: $wr-color;
-        background-color: $iu-cream;
-        color: $wr-color;
-    }
-
-    &.TE {
-        &.filled {
-            background-color: $te-color;
-            border-color: $te-color;
-            color: $iu-cream;
-        }
-
-        border-color: $te-color;
-        background-color: $iu-cream;
-        color: $te-color;
-    }
-
-    &.K {
-        &.filled {
-            background-color: $k-color;
-            border-color: $k-color;
-            color: $iu-cream;
-        }
-
-        border-color: $k-color;
-        background-color: $iu-cream;
-        color: $k-color;
-    }
-
-    &.DEF {
-        &.filled {
-            background-color: $def-color;
-            border-color: $def-color;
-            color: $iu-cream;
-        }
-
-        border-color: $def-color;
-        background-color: $iu-cream;
-        color: $def-color;
-    }
-}
-
-.sortBadge {
-    width: 50px;
 }

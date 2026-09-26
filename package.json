@@ -4,6 +4,7 @@
     "scripts": {
         "setup": "yarn install && yarn --cwd server install && yarn --cwd client install",
         "start": "yarn setup && yarn dev",
+        "images": "yarn --cwd server node scripts/fetch-player-images.js",
         "dev": "concurrently -k -n server,client -c blue,green \"yarn --cwd server dev\" \"yarn --cwd client dev\""
     },
     "devDependencies": {

@@ -1,117 +1,52 @@
 @import "../../styles/theme.scss";
 
-.mobileApp {
-    color: $bsu-cardinal-red;
-    font-size: 14px;
-}
-
 .page {
-    padding: 10px 24px;
-}
+    max-width: $content-width;
+    margin: 0 auto;
+    padding: 0 16px 32px;
 
-//Header
-
-.sectionTitle {
-    font-size: 1rem;
-    font-weight: 700;
-    margin: 10px 10px;
-    color: $iu-cream;
-}
-
-.divider {
-    background-color: $bsu-cardinal-red;
-    height: 1px;
-    width: 80%;
-}
-
-.toolbar {
-    display: flex;
-    align-items: center;
-    margin: 1px 0;
-    flex-direction: column;
-}
-
-.filters2 {
-    display: flex;
-    align-items: center;
-    margin: 1px 0;
-    gap: 10px;
-}
-
-.filters {
-    width: 100%;
-    border-bottom: solid 1px $iu-crimson;
-    padding-bottom: 8px;
-    color: $bsu-dark-gray;
-
-    &:not(:nth-child(1)) {
-        margin-top: 10px;
+    &.narrow {
+        max-width: $reading-width;
     }
 }
 
-.checkbox {
-    margin: 6px 0;
-}
-.checkboxes {
-    margin-top: 6px;
-}
-
-.filterTitle {
-    font-size: 14px;
-    font-weight: 700;
-    margin-top: 2px;
-}
-
-.checkboxLabel {
-    margin-left: 6px;
-}
-
-.filterLabel {
-    font-size: 10px;
-    font-weight: 600;
-    margin: 2px;
-}
-
-.sortOptions {
-    display: flex;
-    align-items: center;
-    margin: 1px 0;
-    gap: 10px;
-}
-
-.sortOption {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-radius: 4px;
-    border: solid 1px rgb(128, 128, 128);
-    padding: 2px 6px;
-    margin-top: 2px;
-    width: 65px;
-}
-
-.dash {
-    font-size: 10px;
-    color: #eeeeee;
-}
-
 .loader {
-    // font-size: 140px;
-    // margin: 50vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 48px;
-}
-
-.loaderText {
-    font-size: 16px;
-    font-weight: 700;
-    color: $bsu-dark-gray;
+    gap: 16px;
+    padding: 72px 24px 0;
+    text-align: center;
 }
 
 .loaderIcon {
-    margin-top: 42px;
-    font-size: 48px;
-    width: fit-content;
+    font-size: 44px;
+    color: $crimson;
+    --fa-secondary-color: #{$cardinal};
+}
+
+.loaderText {
+    font-family: $font-display;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: $ink-muted;
+}
+
+.loaderHint {
+    max-width: 260px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: $ink-muted;
+}
+
+.retry {
+    min-height: 44px;
+    padding: 0 24px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    color: $cream-light;
+    background-color: $crimson;
 }

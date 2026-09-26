@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import PositionBadge from "../PositionBadge/PositionBadge";
 import styles from "./PlayerRow.module.scss";
-import { getSnakeDraftPick } from "../../helpers/draft.helper";
+import { useState } from "react";
 import { IS_IN_SEASON } from "../../constants";
 
 const teamColors = {
@@ -77,21 +77,6 @@ const getNumberSuffix = (number) => {
     }
 };
 
-const rosteredByPickMap = {
-    Joel: 1,
-    Tri: 2,
-    Hues: 3,
-    Jack: 4,
-    Jeremiah: 5,
-    Bob: 6,
-    "T Cool": 7,
-    Darius: 8,
-    Quast: 9,
-    Zack: 10,
-    Nick: 11,
-    Diego: 12,
-};
-
 const pickOrderMap = {
     Joel: 0,
     Tri: 7,
@@ -122,6 +107,64 @@ const getSnakeDraftPickNumberForPlayer = (player, round) => {
     return "TBD";
 };
 
+const PlayerImage = ({ name, team, position }) => {
+    const [hasError, setHasError] = useState(false);
+    const isDefense = position === "DEF";
+
+    const initials = name
+        ?.split(" ")
+        .map((part) => part[0])
+        .join("")
+        .slice(0, 2);
+
+    return (
+        <div
+            className={styles.imageContainer}
+            style={{ "--team": teamColors[team] || "#54585a" }}
+        >
+            {hasError ? (
+                <span className={styles.imageFallback}>
+                    {isDefense ? team : initials}
+                </span>
+            ) : (
+                <img
+                    className={classNames(
+                        styles.playerImage,
+                        isDefense && styles.defense
+                    )}
+                    src={getPlayerImage(name)}
+                    alt=""
+                    loading="lazy"
+                    onError={() => setHasError(true)}
+                />
+            )}
+        </div>
+    );
+};
+
+const KeeperCost = ({ keeperCost, showAdpCost }) => {
+    if (!keeperCost) {
+        return (
+            <div className={classNames(styles.keeperCost, styles.ineligible)}>
+                <i className="fa-solid fa-ban" />
+                <div className={styles.keeperLabel}>Not Keepable</div>
+            </div>
+        );
+    }
+
+    return (
+        <div className={styles.keeperCost}>
+            <div className={styles.keeperValue}>
+                {showAdpCost ? "ADP" : keeperCost}
+                <span className={styles.valueSuffix}>
+                    {showAdpCost ? "+1" : getNumberSuffix(keeperCost)}
+                </span>
+            </div>
+            <div className={styles.keeperLabel}>Round</div>
+        </div>
+    );
+};
+
 const PlayerRow = ({
     keeperValueForCurrentTeam: keeperCost,
     name,
@@ -138,128 +181,67 @@ const PlayerRow = ({
     // Next year's ADP isn't known during the season
     const showAdpCost = IS_IN_SEASON && isWaiverCost;
 
-    const keeperAdpCost = getSnakeDraftPick(
-        rosteredByPickMap[rosteredBy],
-        keeperCost
-    );
-
     const pickCostForPlayer = getSnakeDraftPickNumberForPlayer(
         rosteredBy,
         keeperCost
     );
 
     const pickValue = Math.round(pickCostForPlayer - adp);
-
-    const SHOW_KEEPEER_VALUE = false;
+    const roundValue = keeperCost - adr;
+    const hasValue = !!(adp && adr && keeperCost);
 
     return (
-        <div className={styles.playerRow}>
-            <div className={styles.left2}>
-                <div
-                    className={styles.imageContainer}
-                    style={{
-                        borderColor: teamColors[team],
-                    }}
-                >
-                    <img
-                        className={classNames(
-                            styles.playerImage,
-                            position === "DEF" && styles.defense
-                        )}
-                        src={getPlayerImage(name)}
-                        onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "/images/missing-player.png";
-                        }}
-                    />
-                </div>
-                <div className={styles.playerInfo}>
-                    <div className={styles.player}>
-                        <div className={styles.playerName}>{name}</div>
-                    </div>
-                    <div className={styles.rosteredBy}>
-                        Rostered By:
-                        <span className={styles.playerOwner}>{rosteredBy}</span>
-                    </div>
-                    <div className={styles.badges}>
-                        <PositionBadge position={position} filled />
+        <article className={styles.playerRow}>
+            <PlayerImage name={name} team={team} position={position} />
 
-                        <div className={classNames(styles.playerPosition)}>
-                            {team || "FA"}
-                        </div>
-                        {!IS_IN_SEASON && (
-                            <div className={classNames(styles.playerPosition)}>
-                                ADP {adp || "UDFA"} ({adr}
-                                {getNumberSuffix(adr)})
-                            </div>
-                        )}
-                    </div>
+            <div className={styles.playerInfo}>
+                <div className={styles.playerName}>{name}</div>
+                <div className={styles.badges}>
+                    <PositionBadge position={position} />
+                    <span className={styles.team}>{team || "FA"}</span>
+                    {!IS_IN_SEASON && (
+                        <span className={styles.adp}>
+                            ADP {adp || "UDFA"}
+                            {adr && (
+                                <>
+                                    {" "}
+                                    · {adr}
+                                    {getNumberSuffix(adr)}
+                                </>
+                            )}
+                        </span>
+                    )}
+                </div>
+                <div className={styles.rosteredBy}>
+                    <i className="fa-solid fa-user" />
+                    {rosteredBy}
                 </div>
             </div>
+
             <div className={styles.right}>
-                <div className={styles.keeperCost}>
-                    {!IS_IN_SEASON && <HotColdIcon type={hotColdPlayers[id]} />}
-                    <div className={styles.inside}>
-                        <div className={styles.keeperValue}>
-                            {showAdpCost ? (
-                                <div>
-                                    ADP
-                                    <span className={styles.valueSuffix}>
-                                        +1
-                                    </span>
-                                </div>
-                            ) : keeperCost ? (
-                                <div>
-                                    {keeperCost}
-                                    <span className={styles.valueSuffix}>
-                                        {getNumberSuffix(keeperCost)}
-                                    </span>
-                                </div>
-                            ) : (
-                                <i className="fa-solid fa-ban" />
-                            )}
-                        </div>
-                        <div className={styles.keeperLabel}>
-                            {!keeperCost
-                                ? "Ineligible"
-                                : showAdpCost
-                                  ? "Round"
-                                  : " Round Pick"}
-                        </div>
-                    </div>
-                </div>
-                {IS_IN_SEASON ? (
-                    <div className={classNames(styles.value)}>
-                        '{String(keeperDraftYear).slice(-2)} Keeper Cost
-                    </div>
-                ) : (
-                    <>
-                        <div
-                            className={classNames(
-                                styles.value,
-                                adp && keeperCost - adr > 0 && styles.green,
-                                adp && keeperCost - adr < 0 && styles.red
-                            )}
-                        >
-                            {!adr || !keeperCost
-                                ? " "
-                                : `${keeperCost - adr} Round Value`}
-                        </div>
-                        <div
-                            className={classNames(
-                                styles.value,
-                                adp && keeperCost - adr > 0 && styles.green,
-                                adp && keeperCost - adr < 0 && styles.red
-                            )}
-                        >
-                            {!adr || !keeperCost
-                                ? " "
-                                : `${pickValue} Pick Value`}
-                        </div>
-                    </>
-                )}
+                {!IS_IN_SEASON && <HotColdIcon type={hotColdPlayers[id]} />}
+                <KeeperCost keeperCost={keeperCost} showAdpCost={showAdpCost} />
+                {IS_IN_SEASON
+                    ? keeperCost > 0 && (
+                          <div className={styles.caption}>
+                              '{String(keeperDraftYear).slice(-2)} Keeper Cost
+                          </div>
+                      )
+                    : hasValue && (
+                          <div
+                              className={classNames(
+                                  styles.caption,
+                                  roundValue > 0 && styles.green,
+                                  roundValue < 0 && styles.red
+                              )}
+                          >
+                              {roundValue > 0 && "+"}
+                              {roundValue} rd · {pickValue > 0 && "+"}
+                              {pickValue} pk
+                          </div>
+                      )}
             </div>
-        </div>
+        </article>
     );
 };
 

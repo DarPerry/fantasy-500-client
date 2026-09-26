@@ -15,35 +15,42 @@ const RuleCard = ({ children, title }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <div className={styles.rule} onClick={() => setIsOpen(!isOpen)}>
-            <div className={styles.title}>
+        <section className={classNames(styles.rule, isOpen && styles.open)}>
+            <button
+                type="button"
+                className={styles.title}
+                aria-expanded={isOpen}
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <span>{title}</span>
                 <i
                     className={classNames(
-                        `fa fa-${isOpen ? "minus" : "plus"}`,
+                        "fa-solid fa-chevron-down",
                         styles.icon
                     )}
                 />
-                <div>{title}</div>
-            </div>
+            </button>
             {isOpen && <div className={styles.body}>{children}</div>}
-        </div>
+        </section>
     );
 };
 
 const NewBadge = ({ isNew, isUpdated, isProposed }) => {
     if (isProposed)
         return (
-            <div className={classNames(styles.newBadge, styles.proposed)}>
+            <span className={classNames(styles.newBadge, styles.proposed)}>
                 PROPOSED
-            </div>
+            </span>
         );
 
-    return <div className={styles.newBadge}>{isNew ? "NEW" : "UPDATE"}</div>;
+    return <span className={styles.newBadge}>{isNew ? "NEW" : "UPDATE"}</span>;
 };
 
 const RulesList = ({ header, children, showDivider }) => {
     return (
-        <div className={classNames(showDivider && styles.divided)}>
+        <div
+            className={classNames(styles.group, showDivider && styles.divided)}
+        >
             {header && <div className={styles.listHeader}>{header}</div>}
             <ul className={styles.list}>{children}</ul>
         </div>
@@ -58,25 +65,19 @@ const RulesListItem = ({ text, bolded, isNew, isUpdated, isProposed }) => {
         return null;
     };
     return (
-        <div className={styles.listItem}>
-            <div className={styles.bullet} />
-            <Badge />
-
-            <div className={styles.text}>
+        <li className={styles.listItem}>
+            <span className={styles.text}>
+                <Badge />
                 {text}
-                {bolded && (
-                    <>
-                        : <b className={styles.bolded}>{bolded}</b>
-                    </>
-                )}
-            </div>
-        </div>
+            </span>
+            {bolded !== undefined && <b className={styles.bolded}>{bolded}</b>}
+        </li>
     );
 };
 
 const RulesPage = () => {
     return (
-        <Page>
+        <Page narrow>
             <RuleCard title={"Entry Fee & Payouts"}>
                 <RulesList>
                     <RulesListItem
@@ -225,7 +226,7 @@ const RulesPage = () => {
                         bolded={"Prev. keeper cost - 2"}
                     />
                     <RulesListItem
-                        text={"Player 3nd time kept"}
+                        text={"Player 3rd time kept"}
                         bolded={"Prev. keeper cost - 3"}
                     />
                     <RulesListItem

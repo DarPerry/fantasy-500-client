@@ -1,176 +1,223 @@
 @import "../../styles/theme.scss";
 
-$player-image-size: 63px;
+$player-image-size: 60px;
+$cost-width: 66px;
 
 .playerRow {
-    background-color: $iu-cream;
     display: flex;
-    margin-top: 12px;
-    justify-content: space-between;
-    padding: 8px 10px;
-    border-radius: 6px;
-    box-shadow:
-        rgba(0, 0, 0, 0.2) 0px 0px 6px 0px,
-        rgba(192, 192, 192, 0.3) 0px 0px 24px 0px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background-color: $paper;
+    border-radius: $radius;
+    box-shadow: $shadow-card;
 }
 
+// Player image
+
 .imageContainer {
+    position: relative;
+    flex-shrink: 0;
     width: $player-image-size;
     height: $player-image-size;
-    background-color: #dadedf;
-    border: solid 2px $bsu-dark-gray;
+    border-radius: 12px;
     overflow: hidden;
-    border-radius: 5px;
-    margin-right: 8px;
+    background-color: $cream;
+    background-color: color-mix(in srgb, var(--team) 22%, #{$paper});
+    box-shadow: inset 0 -3px 0 var(--team);
     display: flex;
+    align-items: center;
     justify-content: center;
 }
 
 .playerImage {
-    position: relative;
-    // right: 16%;
-    top: 12%;
+    position: absolute;
+    width: 124%;
+    left: -12%;
+    top: 10%;
+
     &.defense {
+        width: 100%;
+        left: 0;
         top: 0;
-        padding: 3px;
+        padding: 6px;
     }
 }
-.left2 {
-    display: flex;
-    // align-items: center;
+
+.imageFallback {
+    font-family: $font-display;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--team);
 }
 
-.player {
-    display: flex;
-    color: $iu-base-black;
+// Player info
+
+.playerInfo {
+    flex: 1;
+    min-width: 0;
 }
 
 .playerName {
-    font-weight: 700;
-}
-
-.playerPosition {
-    color: $iu-cream;
-    padding: 2px 4px;
-    border-radius: 4px;
-    font-weight: 700;
-    font-size: 0.65rem;
-    min-width: 25px;
-    margin: 4px 0;
-    text-align: center;
-    background-color: $bsu-light-gray;
-    color: $bsu-dark-gray;
-    border: solid 2px $bsu-dark-gray;
-}
-.rosteredBy {
-    font-size: 0.65rem;
-    letter-spacing: 0.1px;
-    color: $bsu-dark-gray;
-}
-
-.playerOwner {
-    font-size: 0.65rem;
-    font-weight: 700;
-    margin-left: 4px;
-}
-
-.keeperCost {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    color: $iu-cream;
-    border-radius: 4px;
-    background-color: $bsu-cardinal-red;
-    height: fit-content;
-    padding: 6px;
-    width: 61px;
-    position: relative;
-}
-
-.keeperValue {
-    justify-content: center;
-    align-items: center;
     font-size: 15px;
-    font-weight: 800;
-    text-align: center;
-}
-
-.keeperLabel {
-    font-size: 0.5rem;
-    font-size: 8px;
-}
-
-.valueSuffix {
-    font-size: 0.6rem;
-}
-
-.inside {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.right {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: fit-content;
-}
-
-.value {
-    margin-top: 4px;
-    font-size: 9px;
-    color: $bsu-dark-gray;
-    &.green {
-        color: green;
-    }
-
-    &.red {
-        color: red;
-    }
+    font-weight: 700;
+    line-height: 1.2;
+    color: $ink;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .badges {
     display: flex;
-    gap: 4px;
+    flex-wrap: wrap;
     align-items: center;
+    gap: 6px;
+    margin-top: 5px;
 }
 
+.team {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: $ink-muted;
+}
+
+.adp {
+    font-size: 11px;
+    color: $ink-muted;
+
+    &::before {
+        content: "·";
+        margin-right: 6px;
+    }
+}
+
+.rosteredBy {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: $crimson;
+
+    i {
+        font-size: 9px;
+        opacity: 0.7;
+    }
+}
+
+// Keeper cost
+
+.right {
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    width: $cost-width + 8px;
+}
+
+.keeperCost {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: $cost-width;
+    height: 58px;
+    border-radius: 8px;
+    color: $cream-light;
+    background: linear-gradient(160deg, $cardinal 0%, $crimson 100%);
+    box-shadow: 0 2px 6px rgba($crimson, 0.25);
+
+    &.ineligible {
+        gap: 4px;
+        color: $ink-muted;
+        background: $cream-light;
+        border: dashed 1.5px $line;
+        box-shadow: none;
+
+        i {
+            font-size: 16px;
+            opacity: 0.6;
+        }
+
+        .keeperLabel {
+            font-size: 8px;
+            text-align: center;
+            line-height: 1.2;
+        }
+    }
+}
+
+.keeperValue {
+    font-family: $font-display;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.valueSuffix {
+    font-size: 14px;
+    font-weight: 700;
+    margin-left: 1px;
+    vertical-align: top;
+}
+
+.keeperLabel {
+    margin-top: 2px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.caption {
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    color: $ink-muted;
+    white-space: nowrap;
+
+    &.green {
+        color: #1e7b3a;
+    }
+
+    &.red {
+        color: $cardinal;
+    }
+}
+
+// Hot / cold (offseason only)
+
 .hcIcon {
+    position: absolute;
+    top: -7px;
+    right: -2px;
+    z-index: 1;
     width: 20px;
     height: 20px;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    border: solid 2px transparent;
-    box-sizing: border-box;
-    position: absolute;
-    left: 46px;
-    top: -4px;
+    border: solid 2px $paper;
 
     i {
         font-size: 10px;
-        display: flex;
-        justify-content: center;
     }
 
     &.cold {
-        background-color: #eaf6fe;
-        border-color: #36a7f4;
-
-        i {
-            color: #36a7f4;
-        }
+        background-color: #36a7f4;
+        color: $paper;
     }
 
     &.hot {
-        background-color: #fff6e5;
-        border-color: #ffaa00;
-
-        i {
-            color: #ffaa00;
-        }
+        background-color: #ffaa00;
+        color: $paper;
     }
 }

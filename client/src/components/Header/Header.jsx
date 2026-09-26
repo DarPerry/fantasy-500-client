@@ -1,65 +1,55 @@
 import classNames from "classnames";
 
 import styles from "./Header.module.scss";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { REIGNING_CHAMPION } from "../../constants";
 
-const pageLabelMap = {
-    keeperPrices: "Keeper Prices",
-    rules: "Rules",
-};
+const pages = [
+    { path: "/keeperPrices", label: "Keeper Prices" },
+    { path: "/rules", label: "Rules" },
+];
 
 const Header = () => {
-    const [activePage, setActivePage] = useState("keeperPrices");
-
-    const PageNavOption = ({ pageKey }) => {
-        const active = activePage === pageKey;
-
-        return (
-            <Link
-                className={classNames(styles.page, active && styles.active)}
-                onClick={() => setActivePage(pageKey)}
-                to={pageKey}
-            >
-                {pageLabelMap[pageKey]}
-            </Link>
-        );
-    };
+    const { pathname } = useLocation();
+    // "/" also shows keeper prices
+    const activePath = pathname === "/" ? "/keeperPrices" : pathname;
 
     return (
-        <header>
-            <div className={styles.header}>
-                <div className={styles.middle}>
+        <header className={styles.header}>
+            <div className={styles.inner}>
+                <div className={styles.brand}>
                     <img
                         className={styles.leagueImage}
                         src="/images/league-picture.jpg"
+                        alt=""
                     />
                     <div>
-                        <div className={styles.leagueInfo}>
-                            <div className={styles.leagueName}>
-                                The Fantasy 500
-                            </div>
-                        </div>
+                        <div className={styles.leagueName}>The Fantasy 500</div>
                         <div className={styles.champ}>
-                            <i
-                                className={classNames(
-                                    "fa-solid fa-user-crown",
-                                    styles.crownIcon
-                                )}
-                            />
-                            <span>Reigning Champion:</span>
+                            <i className="fa-solid fa-user-crown" />
+                            <span>Reigning Champ</span>
                             <span className={styles.champName}>
                                 {REIGNING_CHAMPION}
                             </span>
                         </div>
                     </div>
                 </div>
+                <nav className={styles.pages}>
+                    {pages.map(({ path, label }) => (
+                        <Link
+                            key={path}
+                            to={path}
+                            className={classNames(
+                                styles.page,
+                                activePath === path && styles.active
+                            )}
+                        >
+                            {label}
+                        </Link>
+                    ))}
+                </nav>
             </div>
-            <div className={styles.pages}>
-                <PageNavOption pageKey="keeperPrices" />
-                <PageNavOption pageKey="rules" />
-            </div>
+            <div className={styles.stripe} />
         </header>
     );
 };

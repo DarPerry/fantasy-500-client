@@ -1,54 +1,58 @@
 import styles from "./MobileApp.module.scss";
 
-import { useEffect, useState } from "react";
-import { Outlet, Route, Routes } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
 
 import Header from "../Header/Header";
 import KeeperPricesPage from "../../pages/KeeperPrices.page";
 import RulesPage from "../../pages/RulesPage/RulesPage";
 
+const API_URL =
+    window.location.hostname === "localhost"
+        ? "http://localhost:1739/"
+        : "https://indy-ff-site-server.onrender.com/";
+
 const MobileApp = () => {
     const [data, setData] = useState(null);
-    const isLocalhost = window.location.hostname === "localhost";
+    const [hasError, setHasError] = useState(false);
+    const { pathname } = useLocation();
+
+    const getData = useCallback(async () => {
+        setHasError(false);
+
+        try {
+            const response = await fetch(API_URL);
+
+            if (!response.ok) throw new Error(response.statusText);
+
+            setData(await response.json());
+        } catch (error) {
+            console.error(error);
+            setHasError(true);
+        }
+    }, []);
 
     useEffect(() => {
-        const getData = async () => {
-            const response = await fetch(
-                isLocalhost
-                    ? "http://localhost:1739/"
-                    : "https://indy-ff-site-server.onrender.com/"
-            );
-            const data = await response.json();
-            setData(data);
-        };
-
         getData();
-    }, []);
+    }, [getData]);
+
+    // Start each page at the top instead of the previous page's scroll position
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [pathname]);
+
+    const keeperPricesPage = (
+        <KeeperPricesPage data={data} hasError={hasError} onRetry={getData} />
+    );
 
     return (
         <div className={styles.mobileApp}>
-            {/* <div
-                style={{
-                    background: "red",
-                    width: "100%",
-                    backgroundImage:
-                        "url('https://heavy.com/wp-content/uploads/2025/11/caleb-williams-chicago-bears_ae84c4.jpg?quality=65&strip=all&w=780')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    height: "200px",
-                }}
-            ></div> */}
             <Header />
             <Routes>
-                <Route path="/" element={<KeeperPricesPage data={data} />} />
-                <Route
-                    index
-                    path="keeperPrices"
-                    element={<KeeperPricesPage data={data} />}
-                />
+                <Route path="/" element={keeperPricesPage} />
+                <Route path="keeperPrices" element={keeperPricesPage} />
                 <Route path="rules" element={<RulesPage />} />
             </Routes>
-            <Outlet />
         </div>
     );
 };

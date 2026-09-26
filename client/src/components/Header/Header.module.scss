@@ -1,80 +1,85 @@
 @import "../../styles/theme.scss";
 
-$image-size: 38px;
+$image-size: 44px;
 
 .header {
-    display: flex;
-    padding: 14px 1px;
-    color: $iu-cream;
-    background-color: $iu-crimson;
+    color: $cream-light;
+    background: linear-gradient(160deg, $crimson 0%, $crimson-dark 100%);
 }
 
-.middle {
+.inner {
+    max-width: $content-width;
+    margin: 0 auto;
+    padding: 16px 16px 0;
+}
+
+.brand {
     display: flex;
     align-items: center;
-}
-
-.leagueInfo {
-    display: flex;
+    gap: 12px;
 }
 
 .leagueImage {
-    background-color: white;
     width: $image-size;
     height: $image-size;
     border-radius: 50%;
-    margin: 0 12px;
-    border: solid 2px white;
+    background-color: $paper;
+    border: solid 2px $cream-light;
+    flex-shrink: 0;
 }
 
 .leagueName {
-    font-weight: 700;
-    letter-spacing: 0.1px;
-    font-size: 15px;
+    font-family: $font-display;
+    font-weight: 800;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 .champ {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 4px;
     font-size: 12px;
-    font-weight: 600;
-    margin-top: 2px;
-    color: #ffd700;
+    font-weight: 500;
+    color: rgba($cream-light, 0.8);
+
+    i {
+        color: #f2c14e;
+    }
 }
 
 .champName {
     font-weight: 700;
-    margin-left: 4px;
-}
-
-.crownIcon {
-    margin-right: 4px;
+    color: $cream-light;
 }
 
 .pages {
     display: flex;
-    align-items: center;
-    background-color: $bsu-white;
-    width: 100%;
-    padding: 6px 15px 0 15px;
-    font-size: 12px;
-    color: $bsu-dark-gray;
-    font-weight: 600;
-    border-bottom: solid 1.5px rgb(229, 229, 229);
-    gap: 20px;
+    gap: 22px;
+    margin-top: 14px;
 }
 
 .page {
-    // font-size: 0.7rem;
-    // font-weight: 700;
-    // text-transform: uppercase;
-    border-bottom: solid 2px transparent;
-    padding: 0 8px 4px 8px;
-    line-height: 20px;
-    cursor: pointer;
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 0 2px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    color: rgba($cream-light, 0.7);
     text-decoration: none;
-    color: $bsu-dark-gray;
-    width: fit-content;
+    border-bottom: solid 3px transparent;
 
     &.active {
-        border-color: $bsu-cardinal-red;
+        color: $cream-light;
+        border-color: $cream-light;
     }
+}
+
+.stripe {
+    @include candy-stripe(6px);
 }

@@ -8,13 +8,13 @@ $indy-black: #000000;
 
 $background-grey: #eeeeee;
 
-$qb-color: #ff2a6d;
-$rb-color: #00ceb8;
-$wr-color: #58a7ff;
-$te-color: #ffae58;
-$k-color: #bd66ff;
-$dst-color: #7988a1;
-$def-color: #7988a1;
+$qb-color: #d6336c;
+$rb-color: #0f9d8a;
+$wr-color: #2f7fd8;
+$te-color: #e08a1e;
+$k-color: #8e5bd6;
+$dst-color: #6b7a90;
+$def-color: #6b7a90;
 
 //*  School Primary Colors *\\
 $bsu-cardinal-red: #ba0c2f;
@@ -23,7 +23,7 @@ $bsu-white: #ffffff;
 $iu-crimson: #990000;
 $iu-cream: #edebeb;
 
-//*  School Primary Colors *\\
+//*  School Secondary Colors *\\
 $bsu-black: #000000;
 $bsu-dark-gray: #54585a;
 $bsu-light-gray: #e6e7e8;
@@ -35,3 +35,34 @@ $iu-dark-majestic: #512a44;
 $iu-majestic: #66435a;
 $iu-black: #191919;
 $iu-base-black: #243142;
+
+//*  Site Theme *\\
+$crimson: $iu-crimson;
+$cardinal: $bsu-cardinal-red;
+$crimson-dark: #6e0000;
+$cream: $iu-cream;
+$cream-light: #f7f6f4;
+$paper: #ffffff;
+$ink: $iu-black;
+$ink-muted: $bsu-dark-gray;
+$line: #dedad6;
+
+$font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+$font-body: "Inter", system-ui, -apple-system, "Segoe UI", Helvetica, Arial,
+    sans-serif;
+
+$radius: 10px;
+$content-width: 1080px;
+$reading-width: 720px;
+$tablet: 700px;
+$shadow-card: 0 1px 2px rgba(25, 25, 25, 0.06), 0 2px 8px rgba(25, 25, 25, 0.05);
+
+// IU candy stripes
+@mixin candy-stripe($height: 6px) {
+    height: $height;
+    background: repeating-linear-gradient(
+        90deg,
+        $crimson 0 10px,
+        $cream-light 10px 20px
+    );
+}
