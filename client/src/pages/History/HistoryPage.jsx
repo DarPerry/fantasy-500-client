@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { countBy, orderBy, times } from "lodash-es";
+import { orderBy } from "lodash-es";
 import classNames from "classnames";
 
 import styles from "./HistoryPage.module.scss";
@@ -9,7 +9,91 @@ import { PAYOUTS } from "../../constants";
 import { useLeague } from "../../context/league";
 import Icon from "../../components/Icon/Icon";
 
-const formatPoints = (points) => points?.toFixed(2);
+const formatPoints = (points) =>
+    points?.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
+
+// Trophy case awards, in ranking order. `getName` reads the winner from a season.
+const AWARDS = [
+    {
+        key: "champion",
+        label: "Champion",
+        icon: "trophy",
+        tone: "gold",
+        getName: ({ champion }) => champion,
+    },
+    {
+        key: "runnerUp",
+        label: "Runner-up",
+        icon: "medal",
+        tone: "silver",
+        getName: ({ runnerUp }) => runnerUp,
+    },
+    {
+        key: "third",
+        label: "3rd place",
+        icon: "medal",
+        tone: "bronze",
+        getName: ({ third }) => third,
+    },
+    {
+        key: "pointsLeader",
+        label: "Most points",
+        icon: "ranking-star",
+        tone: "points",
+        getName: ({ pointsLeader }) => pointsLeader?.name,
+    },
+    {
+        key: "highScore",
+        label: "High game",
+        icon: "fire",
+        tone: "fire",
+        getName: ({ highScore }) => highScore?.name,
+    },
+];
+
+// Award counts per manager from finished seasons only
+const getTrophyCase = (seasons = []) => {
+    const counts = {};
+
+    seasons
+        .filter(({ status }) => status === "complete")
+        .forEach((season) =>
+            AWARDS.forEach(({ key, getName }) => {
+                const name = getName(season);
+                if (!name) return;
+
+                counts[name] = counts[name] || { name };
+                counts[name][key] = (counts[name][key] || 0) + 1;
+            })
+        );
+
+    return orderBy(
+        Object.values(counts),
+        [
+            ...AWARDS.map(
+                ({ key }) =>
+                    (row) =>
+                        row[key] || 0
+            ),
+            "name",
+        ],
+        [...AWARDS.map(() => "desc"), "asc"]
+    );
+};
+
+const AwardBadge = ({ award, count }) => (
+    <span
+        className={classNames(styles.award, styles[award.tone])}
+        title={`${award.label}${count > 1 ? ` ×${count}` : ""}`}
+        aria-label={`${count} ${award.label}`}
+    >
+        <Icon name={award.icon} />
+        {count}
+    </span>
+);
 
 const HistoryPage = () => {
     const { myTeam } = useLeague();
@@ -34,18 +118,9 @@ const HistoryPage = () => {
     const current = history?.seasons.find(
         ({ season }) => season === history.latestSeason
     );
-    const isCurrentFinished = !!current?.champion;
+    const isCurrentFinished = current?.status === "complete";
 
-    const titles = orderBy(
-        Object.entries(
-            countBy(
-                history?.seasons.filter(({ champion }) => champion),
-                "champion"
-            )
-        ),
-        [([, count]) => count, ([name]) => name],
-        ["desc", "asc"]
-    );
+    const trophyCase = getTrophyCase(history?.seasons);
 
     const isMine = (name) => !!myTeam && name === myTeam.name;
 
@@ -130,6 +205,30 @@ const HistoryPage = () => {
                                                 )
                                             )}
                                         </ol>
+                                        {current.pointsLeader && (
+                                            <p
+                                                className={classNames(
+                                                    styles.seasonStat,
+                                                    styles.points
+                                                )}
+                                            >
+                                                <Icon name="ranking-star" />
+                                                <span>
+                                                    Most points so far:{" "}
+                                                    <b>
+                                                        {
+                                                            current.pointsLeader
+                                                                .name
+                                                        }
+                                                    </b>
+                                                    ,{" "}
+                                                    {formatPoints(
+                                                        current.pointsLeader
+                                                            .points
+                                                    )}
+                                                </span>
+                                            </p>
+                                        )}
                                     </>
                                 ) : (
                                     <p className={styles.muted}>
@@ -139,30 +238,44 @@ const HistoryPage = () => {
                             </section>
                         )}
 
-                        {titles.length > 0 && (
+                        {trophyCase.length > 0 && (
                             <section className={styles.card}>
                                 <div className={styles.eyebrow}>
                                     Trophy case
                                 </div>
-                                <ul className={styles.trophies}>
-                                    {titles.map(([name, count]) => (
+                                <ul
+                                    className={styles.legend}
+                                    aria-label="Awards"
+                                >
+                                    {AWARDS.map((award) => (
                                         <li
-                                            key={name}
+                                            key={award.key}
+                                            className={styles[award.tone]}
+                                        >
+                                            <Icon name={award.icon} />
+                                            {award.label}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <ul className={styles.trophies}>
+                                    {trophyCase.map((row) => (
+                                        <li
+                                            key={row.name}
                                             className={classNames(
-                                                isMine(name) && styles.mine
+                                                isMine(row.name) && styles.mine
                                             )}
                                         >
                                             <span className={styles.rowName}>
-                                                {name}
+                                                {row.name}
                                             </span>
-                                            <span
-                                                className={styles.trophyIcons}
-                                                aria-label={`${count} titles`}
-                                            >
-                                                {times(count, (i) => (
-                                                    <Icon
-                                                        key={i}
-                                                        name="trophy"
+                                            <span className={styles.awards}>
+                                                {AWARDS.filter(
+                                                    ({ key }) => row[key]
+                                                ).map((award) => (
+                                                    <AwardBadge
+                                                        key={award.key}
+                                                        award={award}
+                                                        count={row[award.key]}
                                                     />
                                                 ))}
                                             </span>
@@ -176,7 +289,7 @@ const HistoryPage = () => {
                     <h2 className={styles.sectionTitle}>Past seasons</h2>
                     <div className={styles.seasons}>
                         {history.seasons
-                            .filter(({ champion }) => champion)
+                            .filter(({ status }) => status === "complete")
                             .map((season) => (
                                 <section
                                     key={season.season}
@@ -191,15 +304,19 @@ const HistoryPage = () => {
                                         </span>
                                     </div>
                                     <ol className={styles.podium}>
-                                        <li className={styles.gold}>
-                                            <Icon name="trophy" />
-                                            <span className={styles.rowName}>
-                                                {season.champion}
-                                            </span>
-                                            <span className={styles.muted}>
-                                                Champion
-                                            </span>
-                                        </li>
+                                        {season.champion && (
+                                            <li className={styles.gold}>
+                                                <Icon name="trophy" />
+                                                <span
+                                                    className={styles.rowName}
+                                                >
+                                                    {season.champion}
+                                                </span>
+                                                <span className={styles.muted}>
+                                                    Champion
+                                                </span>
+                                            </li>
+                                        )}
                                         {season.runnerUp && (
                                             <li className={styles.silver}>
                                                 <Icon name="medal" />
@@ -227,19 +344,53 @@ const HistoryPage = () => {
                                             </li>
                                         )}
                                     </ol>
-                                    {season.highScore && (
-                                        <p className={styles.highScore}>
-                                            <Icon name="fire" />
-                                            <span>
-                                                High score:{" "}
-                                                <b>{season.highScore.name}</b>,{" "}
-                                                {formatPoints(
-                                                    season.highScore.points
-                                                )}{" "}
-                                                (wk {season.highScore.week})
-                                            </span>
-                                        </p>
-                                    )}
+                                    <div className={styles.seasonStats}>
+                                        {season.pointsLeader && (
+                                            <p
+                                                className={classNames(
+                                                    styles.seasonStat,
+                                                    styles.points
+                                                )}
+                                            >
+                                                <Icon name="ranking-star" />
+                                                <span>
+                                                    Most points:{" "}
+                                                    <b>
+                                                        {
+                                                            season.pointsLeader
+                                                                .name
+                                                        }
+                                                    </b>
+                                                    ,{" "}
+                                                    {formatPoints(
+                                                        season.pointsLeader
+                                                            .points
+                                                    )}
+                                                </span>
+                                            </p>
+                                        )}
+                                        {season.highScore && (
+                                            <p
+                                                className={classNames(
+                                                    styles.seasonStat,
+                                                    styles.fire
+                                                )}
+                                            >
+                                                <Icon name="fire" />
+                                                <span>
+                                                    High game:{" "}
+                                                    <b>
+                                                        {season.highScore.name}
+                                                    </b>
+                                                    ,{" "}
+                                                    {formatPoints(
+                                                        season.highScore.points
+                                                    )}{" "}
+                                                    (wk {season.highScore.week})
+                                                </span>
+                                            </p>
+                                        )}
+                                    </div>
                                 </section>
                             ))}
                     </div>

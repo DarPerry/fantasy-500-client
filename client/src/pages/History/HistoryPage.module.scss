@@ -102,18 +102,59 @@
     }
 }
 
+// Award colors: icon color, and badge text/background
+$award-tones: (
+    "gold": (#d9a520, #8a6400, #fbf1d6),
+    "silver": (#9aa0a6, #5b6066, #eef0f2),
+    "bronze": (#b0703c, #7c4a22, #f6e8dc),
+    "points": ($wr-color, #1f5ea8, #e6f0fb),
+    "fire": (#ff8a00, #a44d00, #fff0dd),
+);
+
+@each $tone, $colors in $award-tones {
+    .#{$tone} {
+        i {
+            color: nth($colors, 1);
+        }
+
+        &.award {
+            color: nth($colors, 2);
+            background-color: nth($colors, 3);
+        }
+    }
+}
+
 // Trophy case
+
+.legend {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin-top: 8px;
+    padding-bottom: 10px;
+    border-bottom: solid 1px $line;
+
+    li {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 600;
+        color: $ink-muted;
+    }
+}
 
 .trophies {
     list-style: none;
-    margin-top: 8px;
+    margin-top: 4px;
 
     li {
         display: flex;
         align-items: center;
         gap: 10px;
-        min-height: 36px;
-        padding: 0 6px;
+        min-height: 40px;
+        padding: 4px 6px;
         border-radius: 6px;
         font-size: 13px;
 
@@ -123,10 +164,29 @@
     }
 }
 
-.trophyIcons {
+// Badges wrap under each other on narrow phones
+.awards {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     gap: 4px;
-    color: #d9a520;
+}
+
+.award {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 38px;
+    padding: 3px 7px;
+    border-radius: 999px;
+    font-family: $font-display;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+
+    i {
+        font-size: 11px;
+    }
 }
 
 // Past seasons
@@ -186,33 +246,32 @@
     }
 }
 
-.gold i {
-    color: #d9a520;
-}
-
-.silver i {
-    color: #9aa0a6;
-}
-
-.bronze i {
-    color: #b0703c;
-}
-
-.highScore {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.seasonStats {
     margin-top: 8px;
     padding-top: 8px;
     border-top: dashed 1px $line;
+}
+
+.seasonStat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 26px;
     font-size: 12px;
     color: $ink-muted;
 
     i {
-        color: #ffaa00;
+        width: 16px;
+        flex-shrink: 0;
     }
 
     b {
         color: $ink;
+    }
+
+    .card & {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: dashed 1px $line;
     }
 }

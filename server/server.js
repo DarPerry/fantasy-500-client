@@ -466,6 +466,16 @@ const getHistory = () =>
 
                 const highScore = _.maxBy(scores, "points");
 
+                // Most regular-season points (so far, for a season in progress)
+                const totals = _.map(
+                    _.groupBy(scores, "rosterId"),
+                    (weeks, rosterId) => ({
+                        rosterId,
+                        points: _.sumBy(weeks, "points"),
+                    }),
+                );
+                const pointsLeader = _.maxBy(totals, "points");
+
                 return {
                     season: Number(league.season),
                     leagueName: league.name,
@@ -477,6 +487,10 @@ const getHistory = () =>
                         week: highScore.week,
                         name: nameOf(highScore.rosterId),
                         points: highScore.points,
+                    },
+                    pointsLeader: pointsLeader && {
+                        name: nameOf(pointsLeader.rosterId),
+                        points: Math.round(pointsLeader.points * 100) / 100,
                     },
                     topScores: _.orderBy(scores, "points", "desc")
                         .slice(0, 5)
