@@ -161,11 +161,25 @@ $award-tones: (
         & + li {
             border-top: dashed 1px $line;
         }
+
+        // Fixed-width names so every row's badges start at the same spot
+        .rowName {
+            flex: 0 0 76px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
 }
 
-// Badges wrap under each other on narrow phones
+.titles {
+    flex-shrink: 0;
+    display: flex;
+}
+
+// Other awards on the right; wraps on narrow phones
 .awards {
+    flex: 1;
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
@@ -175,9 +189,9 @@ $award-tones: (
 .award {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    min-width: 38px;
-    padding: 3px 7px;
+    gap: 3px;
+    min-width: 34px;
+    padding: 3px 6px;
     border-radius: 999px;
     font-family: $font-display;
     font-size: 14px;

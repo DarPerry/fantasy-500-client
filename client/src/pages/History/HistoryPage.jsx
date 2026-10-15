@@ -54,6 +54,8 @@ const AWARDS = [
     },
 ];
 
+const [CHAMPION_AWARD, ...OTHER_AWARDS] = AWARDS;
+
 // Award counts per manager from finished seasons only
 const getTrophyCase = (seasons = []) => {
     const counts = {};
@@ -268,8 +270,17 @@ const HistoryPage = () => {
                                             <span className={styles.rowName}>
                                                 {row.name}
                                             </span>
+                                            {/* Titles next to the name, other awards on the right */}
+                                            <span className={styles.titles}>
+                                                {row.champion && (
+                                                    <AwardBadge
+                                                        award={CHAMPION_AWARD}
+                                                        count={row.champion}
+                                                    />
+                                                )}
+                                            </span>
                                             <span className={styles.awards}>
-                                                {AWARDS.filter(
+                                                {OTHER_AWARDS.filter(
                                                     ({ key }) => row[key]
                                                 ).map((award) => (
                                                     <AwardBadge
