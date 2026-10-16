@@ -419,8 +419,10 @@ const getLeagueInfo = () =>
 
 // Every team's score for every finished regular-season week
 const getWeeklyScores = async (league, state) => {
-    const { start_week, playoff_week_start } = league.settings || {};
-    const firstWeek = start_week || 1;
+    const { playoff_week_start } = league.settings || {};
+    // Start at week 1 even if start_week says otherwise (2019 says week 3 but
+    // played from week 1); weeks without games are filtered out below
+    const firstWeek = 1;
     let lastWeek = (playoff_week_start || 15) - 1;
 
     // Only count finished weeks of the season in progress
@@ -436,13 +438,163 @@ const getWeeklyScores = async (league, state) => {
     return weeks.flatMap((week, index) =>
         (matchups[index] || [])
             .filter(({ points }) => points > 0)
-            .map(({ roster_id, points }) => ({
+            .map(({ roster_id, points, matchup_id }) => ({
                 week,
                 rosterId: roster_id,
                 points,
+                matchupId: matchup_id,
             })),
     );
 };
+
+// Minimum games before an opponent can be someone's nemesis or favorite
+const MIN_RIVAL_GAMES = 3;
+
+const winRate = ({ wins, losses, ties }) => {
+    const games = wins + losses + ties;
+    return games ? (wins + ties / 2) / games : 0;
+};
+
+// All-time regular-season head-to-head records, by Sleeper user id so they
+// carry across seasons
+const getRivals = () =>
+    cached("rivals", TTL.SHORT, async () => {
+        const [{ seasons, managersBySeason, currentLeague }, state] =
+            await Promise.all([getKeeperData(), getNflState()]);
+
+        const playedSeasons = seasons.filter(
+            ({ status }) => status !== "pre_draft",
+        );
+
+        const names = {};
+        const records = {};
+
+        const recordFor = (userId, opponentId) => {
+            records[userId] = records[userId] || {};
+            records[userId][opponentId] = records[userId][opponentId] || {
+                wins: 0,
+                losses: 0,
+                ties: 0,
+                pointsFor: 0,
+                pointsAgainst: 0,
+            };
+            return records[userId][opponentId];
+        };
+
+        const weeklyScores = await Promise.all(
+            playedSeasons.map((league) => getWeeklyScores(league, state)),
+        );
+
+        playedSeasons.forEach((league, index) => {
+            const managers = managersBySeason[league.season];
+
+            Object.values(managers).forEach(({ userId, name }) => {
+                names[userId] = name;
+            });
+
+            const games = _.groupBy(
+                weeklyScores[index].filter(({ matchupId }) => matchupId),
+                ({ week, matchupId }) => `${week}-${matchupId}`,
+            );
+
+            Object.values(games)
+                .filter((teams) => teams.length === 2)
+                .forEach(([a, b]) => {
+                    const userA = managers[a.rosterId]?.userId;
+                    const userB = managers[b.rosterId]?.userId;
+                    if (!userA || !userB) return;
+
+                    const resultA =
+                        a.points > b.points
+                            ? "wins"
+                            : a.points < b.points
+                              ? "losses"
+                              : "ties";
+                    const resultB =
+                        resultA === "wins"
+                            ? "losses"
+                            : resultA === "losses"
+                              ? "wins"
+                              : "ties";
+
+                    const recordA = recordFor(userA, userB);
+                    recordA[resultA]++;
+                    recordA.pointsFor += a.points;
+                    recordA.pointsAgainst += b.points;
+
+                    const recordB = recordFor(userB, userA);
+                    recordB[resultB]++;
+                    recordB.pointsFor += b.points;
+                    recordB.pointsAgainst += a.points;
+                });
+        });
+
+        const currentUserIds = new Set(
+            Object.values(managersBySeason[currentLeague.season]).map(
+                ({ userId }) => userId,
+            ),
+        );
+
+        const round2 = (number) => Math.round(number * 100) / 100;
+
+        const managers = Object.keys(records).map((userId) => {
+            const opponents = _.orderBy(
+                Object.entries(records[userId]).map(([opponentId, record]) => ({
+                    userId: opponentId,
+                    name: names[opponentId],
+                    isCurrent: currentUserIds.has(opponentId),
+                    ...record,
+                    pointsFor: round2(record.pointsFor),
+                    pointsAgainst: round2(record.pointsAgainst),
+                    games: record.wins + record.losses + record.ties,
+                    winRate: round2(winRate(record)),
+                })),
+                ["winRate", "games", "name"],
+                ["desc", "desc", "asc"],
+            );
+
+            const overall = ["wins", "losses", "ties"].reduce(
+                (acc, key) => ({ ...acc, [key]: _.sumBy(opponents, key) }),
+                {},
+            );
+
+            const eligible = opponents.filter(
+                ({ games }) => games >= MIN_RIVAL_GAMES,
+            );
+
+            return {
+                userId,
+                name: names[userId],
+                isCurrent: currentUserIds.has(userId),
+                overall: { ...overall, winRate: round2(winRate(overall)) },
+                // Nemesis needs a losing record against, favorite a winning one
+                nemesis:
+                    _.orderBy(
+                        eligible.filter(({ winRate }) => winRate < 0.5),
+                        ["winRate", "games"],
+                        ["asc", "desc"],
+                    )[0]?.userId || null,
+                favorite:
+                    _.orderBy(
+                        eligible.filter(({ winRate }) => winRate > 0.5),
+                        ["winRate", "games"],
+                        ["desc", "desc"],
+                    )[0]?.userId || null,
+                opponents,
+            };
+        });
+
+        return {
+            firstSeason: Number(playedSeasons[0].season),
+            lastSeason: Number(playedSeasons.at(-1).season),
+            minGames: MIN_RIVAL_GAMES,
+            managers: _.orderBy(
+                managers,
+                ["isCurrent", "name"],
+                ["desc", "asc"],
+            ),
+        };
+    });
 
 const getHistory = () =>
     cached("history", TTL.SHORT, async () => {
@@ -527,12 +679,13 @@ app.get(
 );
 app.get("/league", handle(getLeagueInfo));
 app.get("/history", handle(getHistory));
+app.get("/rivals", handle(getRivals));
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 
     // Warm the cache so the first visitor doesn't wait
-    Promise.all([getLeagueInfo(), getHistory()]).catch((error) =>
+    Promise.all([getLeagueInfo(), getHistory(), getRivals()]).catch((error) =>
         console.error("Warming the cache failed:", error.message),
     );
 });

@@ -9,6 +9,7 @@ const pages = [
     { path: "/keeperPrices", label: "Keepers" },
     { path: "/planner", label: "Planner" },
     { path: "/history", label: "History" },
+    { path: "/rivals", label: "Rivals" },
     { path: "/rules", label: "Rules" },
 ];
 

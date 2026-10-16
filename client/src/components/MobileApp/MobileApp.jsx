@@ -7,6 +7,7 @@ import Header from "../Header/Header";
 import KeeperPricesPage from "../../pages/KeeperPrices.page";
 import PlannerPage from "../../pages/Planner/PlannerPage";
 import HistoryPage from "../../pages/History/HistoryPage";
+import RivalsPage from "../../pages/Rivals/RivalsPage";
 import RulesPage from "../../pages/RulesPage/RulesPage";
 import { LeagueProvider } from "../../context/LeagueContext";
 
@@ -27,6 +28,7 @@ const MobileApp = () => {
                     <Route path="keeperPrices" element={<KeeperPricesPage />} />
                     <Route path="planner" element={<PlannerPage />} />
                     <Route path="history" element={<HistoryPage />} />
+                    <Route path="rivals" element={<RivalsPage />} />
                     <Route path="rules" element={<RulesPage />} />
                 </Routes>
             </div>

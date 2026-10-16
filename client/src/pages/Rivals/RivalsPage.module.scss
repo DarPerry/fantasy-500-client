@@ -1,0 +1,254 @@
+@import "../../styles/theme.scss";
+
+$winning: #1e7b3a;
+$losing: $cardinal;
+
+.intro {
+    padding: 18px 0 12px;
+}
+
+.title {
+    @include page-title;
+}
+
+.subtitle {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: $ink-muted;
+}
+
+.eyebrow {
+    @include eyebrow;
+}
+
+.card {
+    @include card;
+    margin-top: 12px;
+    padding: 16px;
+}
+
+// Overall record
+
+.overall {
+    @include card;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 16px;
+}
+
+.overallRecord {
+    margin-top: 4px;
+    font-family: $font-display;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1;
+    color: $ink;
+}
+
+.overallRate {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-family: $font-display;
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1;
+    color: $crimson;
+
+    span {
+        margin-top: 2px;
+        font-family: $font-body;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: $ink-muted;
+    }
+}
+
+// Nemesis / favorite
+
+.rivalGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.rivalCard {
+    @include card;
+    padding: 14px;
+    border-top: solid 3px transparent;
+
+    &.nemesis {
+        border-top-color: $losing;
+
+        .rivalTitle {
+            color: $losing;
+        }
+    }
+
+    &.favorite {
+        border-top-color: $winning;
+
+        .rivalTitle {
+            color: $winning;
+        }
+    }
+}
+
+.rivalTitle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.rivalName {
+    margin-top: 8px;
+    font-family: $font-display;
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1;
+    text-transform: uppercase;
+    color: $ink;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rivalRecord {
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: $ink-muted;
+}
+
+.rivalEmpty {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: $ink-muted;
+}
+
+// Head-to-head list
+
+.opponents {
+    list-style: none;
+    margin-top: 6px;
+
+    li {
+        padding: 10px 0;
+
+        & + li {
+            border-top: dashed 1px $line;
+        }
+    }
+}
+
+.opponentTop {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.opponentName {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.former {
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: $ink-muted;
+    background-color: $cream;
+}
+
+.opponentRecord {
+    font-size: 13px;
+    font-weight: 600;
+    color: $ink-muted;
+}
+
+.opponentRate {
+    width: 44px;
+    text-align: right;
+    font-family: $font-display;
+    font-size: 18px;
+    font-weight: 800;
+    color: $ink-muted;
+
+    &.winning {
+        color: $winning;
+    }
+
+    &.losing {
+        color: $losing;
+    }
+}
+
+.bar {
+    position: relative;
+    height: 6px;
+    margin-top: 6px;
+    border-radius: 999px;
+    background-color: $cream;
+    overflow: hidden;
+
+    // .500 marker
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 2px;
+        margin-left: -1px;
+        background-color: rgba($ink, 0.25);
+    }
+}
+
+.barFill {
+    height: 100%;
+    border-radius: 999px;
+    background-color: $ink-muted;
+
+    &.winning {
+        background-color: $winning;
+    }
+
+    &.losing {
+        background-color: $losing;
+    }
+}
+
+.opponentMeta {
+    margin-top: 5px;
+    font-size: 11px;
+    color: $ink-muted;
+}
+
+.footnote {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: solid 1px $line;
+    font-size: 11px;
+    line-height: 1.4;
+    color: $ink-muted;
+}
